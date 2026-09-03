@@ -10,11 +10,12 @@ than merging them.
 
 **[Watch the full run demo (75 seconds)](demo/full_pipeline_demo.mp4)**
 
-The recording shows the complete local workflow on a public SAROS CT: loading
-the volume, running both segmentation agents, reviewing the fused result, and
-using the editing controls. The inference wait lasted 1 minute 59
-seconds and is clearly shortened in the recording. The results portion is shown
-at 2x speed. An unedited demo version is also available.
+The recording shows the complete local workflow on public NSCLC Radiomics CT
+case `LUNG1-319`: loading the volume, running both segmentation agents,
+reviewing the fused result, and using the editing controls. The inference wait
+lasted 1 minute 59 seconds and is clearly shortened in the recording. The
+results portion is shown at 2x speed. An unedited demo version is also
+available.
 
 Research use only. This software has not been
 clinically validated yet.
@@ -30,7 +31,7 @@ clinically validated yet.
 - Checkpoint SHA-256 verification (cryptographic check that confirms saved
   model weight files are unchanged) and data leakage guards.
 - Refinement at patient level and a single evaluation on a held out patient.
-- A reviewed recording of real inference made from an approved public SAROS CT.
+- A reviewed recording of real inference on public NSCLC Radiomics CT data.
 
 ## System overview
 
@@ -138,10 +139,9 @@ images or checkpoints.
 ## Models and data
 
 Model weights and medical images are intentionally excluded from ordinary Git
-history. The two frozen checkpoints are prepared as private `v0.1.0` GitHub
-Release assets with verified SHA-256 hashes. Keep that release private until
-the model weight permissions and terms in the third party notices are complete.
-No training images or labels derived from patients are distributed. See
+history. The two frozen checkpoints are prepared as `v0.1.0` GitHub Release
+assets with verified SHA-256 hashes and separate CC BY-NC 4.0 terms. No
+training images or labels derived from patients are distributed. See
 [`models/README.md`](models/README.md) and
 [`docs/privacy_and_data.md`](docs/privacy_and_data.md).
 
@@ -155,7 +155,7 @@ See [`docs/limitations.md`](docs/limitations.md).
 
 ## Sources, citations, and licenses
 
-The software is MIT licensed. SAROS, TCIA, TotalSegmentator, nnU-Net, training
-data, and model weights retain separate terms. See the
+The software is MIT licensed. SAROS, NSCLC Radiomics, TCIA, TotalSegmentator,
+nnU-Net, training data, and model weights retain separate terms. See the
 [`third party notices`](citations/THIRD_PARTY_NOTICES.md),
 [`license`](citations/LICENSE), and [`citation file`](citations/CITATION.cff).

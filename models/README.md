@@ -1,10 +1,9 @@
 # Model artifacts
 
-Model checkpoints are prepared as private `v0.1.0` GitHub Release assets and
-are not stored in ordinary Git history. Do not publish the release until the
-distribution authorization and model weight terms in
-[`../citations/THIRD_PARTY_NOTICES.md`](../citations/THIRD_PARTY_NOTICES.md)
-are complete.
+Model checkpoints are prepared as `v0.1.0` GitHub Release assets and are not
+stored in ordinary Git history. They are distributed under
+[`CC BY-NC 4.0`](../citations/MODEL_WEIGHTS_LICENSE.md), separately from the
+MIT licensed source code.
 
 | Model | Default location | SHA-256 |
 |---|---|---|
@@ -24,9 +23,9 @@ Download and verify both release packages with:
 Release assets:
 
 - `agent1_pericardium_guide_v1.zip` — `dataset.json`, `plans.json`, the frozen
-  best checkpoint, its model card, and the third party notice.
+  best checkpoint, its model card, model weight license, and third party notice.
 - `agent2_gold_refined_v2.zip` — the frozen final Agent 2 checkpoint, its model
-  card, and the third party notice.
+  card, model weight license, and third party notice.
 
 The download script installs the expected repository-relative layout and
 rejects checkpoint hash mismatches after the release is published.
@@ -34,5 +33,5 @@ rejects checkpoint hash mismatches after the release is published.
 Exact archive sizes and SHA-256 values are recorded in
 [`release_assets_v0.1.0.json`](release_assets_v0.1.0.json). Upload the generated
 `release_assets/SHA256SUMS.txt` alongside both archives in the GitHub Release.
-Regenerate the archives after the required notices and model terms are final so
-each package contains its model card and third party notice.
+Each package contains its model card, model weight license, and third party
+notice.

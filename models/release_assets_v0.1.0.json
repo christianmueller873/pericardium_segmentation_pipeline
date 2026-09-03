@@ -3,14 +3,14 @@
   "assets": [
     {
       "name": "agent1_pericardium_guide_v1.zip",
-      "size_bytes": 344437599,
-      "sha256": "a13593ce7fba0d12e08ae8428139dc6bea27bcca749ff10a49ee4c235fac8bb4",
+      "size_bytes": 344766246,
+      "sha256": "873c1fb7564b537003508d6fe90d4a368c6f302a06327720ae25a8a50624dc4b",
       "checkpoint_sha256": "c893c5d8f54cb8113e43db361c9382cf3dceb693402049f67902d43d912ea95a"
     },
     {
       "name": "agent2_gold_refined_v2.zip",
-      "size_bytes": 142216884,
-      "sha256": "5cbd5c2154648856975c591f14b472a97d19d07f90fe23ec4cc6be97d29e4010",
+      "size_bytes": 142373559,
+      "sha256": "94f3e0803c3512d7bf124e812b120c8c04b60e6711d1d4a9ea5e7deeb25b70d1",
       "checkpoint_sha256": "8a0842046f37fb40f58f336651f792e505ef2b282588260d85e9fa8a9d63771b"
     }
   ]

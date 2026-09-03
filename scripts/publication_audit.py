@@ -12,6 +12,7 @@ ROOT_FILES = {
     ".gitignore",
     "citations/CITATION.cff",
     "citations/LICENSE",
+    "citations/MODEL_WEIGHTS_LICENSE.md",
     "citations/THIRD_PARTY_NOTICES.md",
     "README.md",
     "ct_viewer.html",
@@ -49,8 +50,13 @@ REQUIRED_NOTICE_MARKERS = (
     "10.5281/zenodo.10047292",
     "10.1148/ryai.230024",
     "10.1038/s41592-020-01008-z",
+    "10.7937/K9/TCIA.2015.PF0M9REI",
+    "10.1038/ncomms5006",
     "CC BY 4.0",
+    "CC BY-NC 3.0",
+    "CC BY-NC 4.0",
     "Apache License 2.0",
+    "LUNG1-319",
 )
 CONTENT_RULES = {
     "personal Windows user path": re.compile(r"[A-Za-z]:\\Users\\[^\\\s]+", re.I),

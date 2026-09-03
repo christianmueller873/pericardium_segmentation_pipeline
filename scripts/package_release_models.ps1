@@ -1,6 +1,8 @@
 [CmdletBinding()]
 param(
     [string]$OutputDirectory,
+    [string]$Agent1Root,
+    [string]$Agent2Checkpoint,
     [switch]$Force
 )
 
@@ -12,12 +14,15 @@ if (-not $OutputDirectory) {
 $outputRoot = [System.IO.Path]::GetFullPath($OutputDirectory)
 New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
 
-$agent1Root = Join-Path $projectRoot "nnUNet_training\nnUNet_results\Dataset557_BCA_2d_regions\nnUNetTrainer__nnUNetPlans__2d"
+$defaultAgent1Root = Join-Path $projectRoot "nnUNet_training\nnUNet_results\Dataset557_BCA_2d_regions\nnUNetTrainer__nnUNetPlans__2d"
+$agent1Root = if ($Agent1Root) { [System.IO.Path]::GetFullPath($Agent1Root) } else { $defaultAgent1Root }
 $agent1Checkpoint = Join-Path $agent1Root "fold_0\checkpoint_best.pth"
-$agent2Checkpoint = Join-Path $projectRoot "agent2_finetune_runs\v2_gold_boundary\final\final_model.pt"
+$defaultAgent2Checkpoint = Join-Path $projectRoot "agent2_finetune_runs\v2_gold_boundary\final\final_model.pt"
+$agent2Checkpoint = if ($Agent2Checkpoint) { [System.IO.Path]::GetFullPath($Agent2Checkpoint) } else { $defaultAgent2Checkpoint }
 $agent1Expected = "c893c5d8f54cb8113e43db361c9382cf3dceb693402049f67902d43d912ea95a"
 $agent2Expected = "8a0842046f37fb40f58f336651f792e505ef2b282588260d85e9fa8a9d63771b"
 $thirdPartyNotices = Join-Path $projectRoot "citations\THIRD_PARTY_NOTICES.md"
+$modelWeightsLicense = Join-Path $projectRoot "citations\MODEL_WEIGHTS_LICENSE.md"
 $agent1ModelCard = Join-Path $projectRoot "models\agent1_model_card.md"
 $agent2ModelCard = Join-Path $projectRoot "models\agent2_model_card.md"
 
@@ -33,7 +38,7 @@ function Assert-Hash([string]$Path, [string]$Expected) {
 
 Assert-Hash $agent1Checkpoint $agent1Expected
 Assert-Hash $agent2Checkpoint $agent2Expected
-foreach ($document in @($thirdPartyNotices, $agent1ModelCard, $agent2ModelCard)) {
+foreach ($document in @($thirdPartyNotices, $modelWeightsLicense, $agent1ModelCard, $agent2ModelCard)) {
     if (-not (Test-Path -LiteralPath $document -PathType Leaf)) {
         throw "Required release document is missing: $document"
     }
@@ -77,7 +82,7 @@ $sanitizedDataset = Join-Path $outputRoot ".agent1_dataset_release.json"
 try {
     $dataset = Get-Content -LiteralPath (Join-Path $agent1Root "dataset.json") -Raw |
         ConvertFrom-Json
-    $dataset.licence = "See THIRD_PARTY_NOTICES.md and agent1_model_card.md"
+    $dataset.licence = "See MODEL_WEIGHTS_LICENSE.md, THIRD_PARTY_NOTICES.md, and agent1_model_card.md"
     $dataset.converted_by = "Christian Mueller"
     $dataset | ConvertTo-Json -Depth 100 |
         Set-Content -LiteralPath $sanitizedDataset -Encoding UTF8
@@ -87,11 +92,13 @@ try {
         "plans.json" = (Join-Path $agent1Root "plans.json")
         "fold_0/checkpoint_best.pth" = $agent1Checkpoint
         "agent1_model_card.md" = $agent1ModelCard
+        "MODEL_WEIGHTS_LICENSE.md" = $modelWeightsLicense
         "THIRD_PARTY_NOTICES.md" = $thirdPartyNotices
     }
     New-ModelArchive $agent2Archive @{
         "final_model.pt" = $agent2Checkpoint
         "agent2_model_card.md" = $agent2ModelCard
+        "MODEL_WEIGHTS_LICENSE.md" = $modelWeightsLicense
         "THIRD_PARTY_NOTICES.md" = $thirdPartyNotices
     }
 }

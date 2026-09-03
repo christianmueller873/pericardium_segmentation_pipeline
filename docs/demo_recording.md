@@ -34,9 +34,15 @@ card, and the post-inference portion is shown at 2× speed. The unedited
 
 ## Source attribution
 
-The published recording was described during preparation as using public SAROS
-and TCIA data, but the case number and originating TCIA collection were not
-captured. Add those exact details and the applicable collection citation and
-license to the [third party notices](../citations/THIRD_PARTY_NOTICES.md)
-before making the repository public. The CT volume is not included in the
-repository.
+The recording uses case `LUNG1-319` from NSCLC Radiomics Version 4 in The
+Cancer Imaging Archive. The source series UID is
+`1.3.6.1.4.1.32722.99.99.257803739023845165540111357191929268253`. The source
+DICOM series was converted to NIfTI and copied to the viewer input as
+`case_002_0000.nii.gz`; both local NIfTI copies have SHA-256
+`b1cb92cd74f81865e796ce95a61191e48eb0f9345590af7a20ef4b55f587f1e0`.
+
+NSCLC Radiomics is licensed under CC BY-NC 3.0. The recording is an adapted
+presentation: model overlays and viewer controls were added, the inference wait
+was shortened, and part of the result review was accelerated. The CT volume is
+not included in this repository. Full attribution and required citations are in
+the [third party notices](../citations/THIRD_PARTY_NOTICES.md).

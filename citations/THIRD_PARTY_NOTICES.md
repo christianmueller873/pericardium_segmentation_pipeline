@@ -88,15 +88,42 @@ Isensee, F., Jaeger, P. F., Kohl, S. A. A., Petersen, J., & Maier-Hein, K. H.
 image segmentation.* Nature Methods, 18, 203–211.
 <https://doi.org/10.1038/s41592-020-01008-z>
 
-## Demo source record
+## Demo CT: NSCLC Radiomics
 
-The recording shows a 512 × 512 × 136 CT described during project preparation
-as public SAROS and TCIA data. The recording and repository do not reveal the
-SAROS case number or originating TCIA collection, and local inspection could
-not identify it reliably. Before making the repository public, record the
-exact case and source collection here, then apply that collection's citation,
-license, and access terms. The CT volume itself is not included in this
-repository.
+The inference recording uses public NSCLC Radiomics Version 4 CT case
+`LUNG1-319` from The Cancer Imaging Archive. The source series UID is
+`1.3.6.1.4.1.32722.99.99.257803739023845165540111357191929268253`.
+The collection is licensed under CC BY-NC 3.0:
+<https://creativecommons.org/licenses/by-nc/3.0/>.
+Collection page:
+<https://www.cancerimagingarchive.net/collection/nsclc-radiomics/>.
+
+The source DICOM series was converted to NIfTI and renamed
+`case_002_0000.nii.gz` for local inference. The original and viewer-input
+NIfTI copies have SHA-256
+`b1cb92cd74f81865e796ce95a61191e48eb0f9345590af7a20ef4b55f587f1e0`.
+The published recording adds model overlays and viewer controls, shortens the
+inference wait, and accelerates part of the result review. The CT volume and
+source DICOM files are not included in this repository. Because the recordings
+reproduce this CT, both demo video files are distributed under CC BY-NC 3.0.
+
+Required NSCLC Radiomics data citation:
+
+Aerts, H. J. W. L., Wee, L., Rios Velazquez, E., Leijenaar, R. T. H., Parmar,
+C., Grossmann, P., Carvalho, S., Bussink, J., Monshouwer, R., Haibe-Kains, B.,
+Rietveld, D., Hoebers, F., Rietbergen, M. M., Leemans, C. R., Dekker, A.,
+Quackenbush, J., Gillies, R. J., & Lambin, P. (2014). *Data From NSCLC
+Radiomics (Version 4).* The Cancer Imaging Archive.
+<https://doi.org/10.7937/K9/TCIA.2015.PF0M9REI>
+
+Recommended NSCLC Radiomics publication:
+
+Aerts, H. J. W. L., Velazquez, E. R., Leijenaar, R. T. H., Parmar, C.,
+Grossmann, P., Carvalho, S., Bussink, J., Monshouwer, R., Haibe-Kains, B.,
+Rietveld, D., Hoebers, F., Rietbergen, M. M., Leemans, C. R., Dekker, A.,
+Quackenbush, J., Gillies, R. J., & Lambin, P. (2014). *Decoding tumour
+phenotype by noninvasive imaging using a quantitative radiomics approach.*
+Nature Communications, 5. <https://doi.org/10.1038/ncomms5006>
 
 ## Model weight distribution
 
@@ -105,7 +132,9 @@ software. Agent 1 learned from SAROS and TCIA material. Agent 2 learned from
 TotalSegmentator CTs and derived pseudolabels, then from 19 locally controlled
 gold standard cases that are not redistributed.
 
-Before publishing the checkpoint assets, document authorization to distribute
-each trained weight file, choose explicit model weight terms, and include this
-notice and the corresponding model card in each archive. Until those items are
-complete, the checkpoint release should remain draft or private.
+The project owner authorized distribution of the two frozen checkpoint files
+on September 3, 2026. They are licensed under CC BY-NC 4.0 as described in
+[`MODEL_WEIGHTS_LICENSE.md`](MODEL_WEIGHTS_LICENSE.md). This licensing decision
+does not alter or replace any source dataset, image collection, annotation, or
+third party software terms. Each release archive includes this notice, the
+model weight license, and the corresponding model card.

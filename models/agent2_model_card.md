@@ -43,6 +43,5 @@ interpretation constraints.
 The result represents one patient and is not clinical or population-level
 validation. Range ends remain difficult. The exact TotalSegmentator package
 version used for historical pseudolabel generation was not recorded. The
-checkpoint must not be published until the model weight terms and distribution
-authorization described in the
-[third party notices](../citations/THIRD_PARTY_NOTICES.md) are complete.
+checkpoint is distributed under the separate
+[model weight license](../citations/MODEL_WEIGHTS_LICENSE.md).
