@@ -35,7 +35,7 @@ PROHIBITED_SUFFIXES = (
 )
 TEXT_SUFFIXES = {
     "", ".cff", ".csv", ".html", ".js", ".json", ".lock", ".md", ".ps1",
-    ".py", ".toml", ".txt", ".yml", ".yaml",
+    ".py", ".svg", ".toml", ".txt", ".yml", ".yaml",
 }
 REQUIRED_IGNORE_RULES = (
     "/data/", "/gold_standard_20/", "/nnUNet_training/",

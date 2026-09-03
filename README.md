@@ -7,16 +7,16 @@ outputs rather than silently merge them.
 
 ## See it working
 
-▶ **[Watch the real-inference demo (75 seconds)](demo/full_pipeline_demo.mp4)**
+**[Watch the real-inference demo (75 seconds)](demo/full_pipeline_demo.mp4)**
 
 The recording shows the complete local workflow on a public SAROS CT: loading
 the volume, running both segmentation agents, reviewing the fused result, and
 using the viewer's editing controls. The 1-minute-59-second inference wait is
-clearly shortened in the recording, and the results portion is shown at 2×
+clearly shortened in the recording, and the results portion is shown at 2x
 speed. The video has no audio.
 
-> **Research use only.** This software is not a medical device, has not been
-> clinically validated, and must not be used for diagnosis or patient care.
+Research use only. This software is not a medical device, has not been
+clinically validated, and must not be used for diagnosis or patient care.
 
 ## What this repository demonstrates
 
@@ -31,16 +31,7 @@ speed. The video has no audio.
 
 ## System overview
 
-```mermaid
-flowchart LR
-    CT[NIfTI CT volume] --> A1[Agent 1<br/>2D nnU-Net<br/>coarse guide]
-    CT --> A2[Agent 2<br/>3D residual U-Net<br/>precise boundary]
-    A1 --> G[Agreement and<br/>connectedness gates]
-    A2 --> G
-    G --> F[Conservative fusion]
-    F --> API[FastAPI response]
-    API --> UI[Browser CT viewer]
-```
+![Dual-agent segmentation system overview](docs/system_overview.svg)
 
 Agent 2 supplies the default boundary. Agent 1 can contribute only when its
 location, volume, overlap, axial support, and connectedness are compatible with
