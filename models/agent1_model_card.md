@@ -11,6 +11,7 @@ range-end safety net.
 - 13 foreground classes plus background.
 - 9,204 total 2D samples.
 - 7,386 training and 1,818 validation samples.
+- Training source recorded as SAROS Version 1 with underlying TCIA CTs.
 - Frozen checkpoint: `checkpoint_best.pth`.
 - SHA-256: `c893c5d8f54cb8113e43db361c9382cf3dceb693402049f67902d43d912ea95a`.
 
@@ -23,5 +24,7 @@ connectedness gates pass. It can be displayed independently for review.
 
 The label-7 output was strongly out of domain on `heldout-001` and failed the
 agreement gate. It must not be described as a validated whole-sac model for all
-scan domains. The frozen checkpoint is distributed in the `v0.1.0` GitHub
-Release, subject to the repository license and this model card.
+scan domains. SAROS and TCIA terms are separate from the project software
+license. The checkpoint must not be published until the model weight terms and
+distribution authorization described in the
+[third party notices](../citations/THIRD_PARTY_NOTICES.md) are complete.

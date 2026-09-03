@@ -8,6 +8,7 @@ from pathlib import Path
 
 
 DISTRIBUTIONS = (
+    "TotalSegmentator",
     "fastapi",
     "monai",
     "nibabel",

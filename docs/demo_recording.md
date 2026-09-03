@@ -1,8 +1,8 @@
 # Real inference recording walkthrough
 
-The public recording may use the selected public SAROS CT. Before recording,
-close notifications, messaging applications, unrelated browser tabs, and any
-window that could expose personal information.
+The public recording may use an authorized public CT. Before recording, close
+notifications, messaging applications, unrelated browser tabs, and any window
+that could expose personal information.
 
 ## Recommended capture
 
@@ -28,5 +28,15 @@ The reviewed public edit is 74.6 seconds, 1600×772 H.264 at 24 fps, has no
 audio, and is 1,229,530 bytes. Its SHA-256 is
 `b8735bb4947be8e05a592e1521021780e95b7a6584dead0096a3274478a36658`.
 The 1-minute-59-second inference wait was replaced by a two-second disclosure
-card, and the post-inference portion is shown at 2× speed. The
-original 250-second capture remains in the ignored local release-assets area.
+card, and the post-inference portion is shown at 2× speed. The unedited
+250-second capture is published as
+`demo/full_pipeline_demo_unedited_full_length.mp4`.
+
+## Source attribution
+
+The published recording was described during preparation as using public SAROS
+and TCIA data, but the case number and originating TCIA collection were not
+captured. Add those exact details and the applicable collection citation and
+license to the [third party notices](../citations/THIRD_PARTY_NOTICES.md)
+before making the repository public. The CT volume is not included in the
+repository.

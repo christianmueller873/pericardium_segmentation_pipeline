@@ -16,7 +16,7 @@ using the editing controls. The inference wait lasted 1 minute 59
 seconds and is clearly shortened in the recording. The results portion is shown
 at 2x speed. An unedited demo version is also available.
 
-*Research use only. This software has not been
+Research use only. This software has not been
 clinically validated yet.
 
 ## What this repository demonstrates
@@ -46,10 +46,11 @@ path.
 
 ## Held out evidence
 
-Agent 2 was pretrained on 947 volumes with pseudolabels (automatically generated
-training masks), calibrated on a 16/3 split by patient, and fit on 19 patients
-with accepted gold standard labels. One additional patient, published here
-only as `heldout-001`, was kept outside optimization and checkpoint selection.
+Agent 2 was pretrained on 947 TotalSegmentator dataset CT volumes with
+pseudolabels (automatically generated training masks), calibrated on a 16/3
+split by patient, and fit on 19 patients with accepted gold standard labels.
+One additional patient, published here only as `heldout-001`, was kept outside
+optimization and checkpoint selection.
 
 | Metric | Pretrained Agent 2 | Refined Agent 2 |
 |---|---:|---:|
@@ -137,10 +138,10 @@ images or checkpoints.
 ## Models and data
 
 Model weights and medical images are intentionally excluded from ordinary Git
-history. The two frozen checkpoints are distributed as `v0.1.0` GitHub Release
-assets with verified SHA-256 hashes; install them with
-`scripts/download_models.ps1`. No training images or labels derived from
-patients are distributed. See
+history. The two frozen checkpoints are prepared as private `v0.1.0` GitHub
+Release assets with verified SHA-256 hashes. Keep that release private until
+the model weight permissions and terms in the third party notices are complete.
+No training images or labels derived from patients are distributed. See
 [`models/README.md`](models/README.md) and
 [`docs/privacy_and_data.md`](docs/privacy_and_data.md).
 
@@ -152,11 +153,9 @@ larger external set, and no expert reader or regulatory validation has been
 performed. Empty or incoherent results may be intentionally withheld.
 See [`docs/limitations.md`](docs/limitations.md).
 
-## Citations and license
+## Sources, citations, and licenses
 
-This project began from the University Medicine Essen SAROS dataset repository
-and retains its MIT license and copyright notice. SAROS dataset access and
-citations remain governed by their original sources. See
-[`docs/upstream_saros_attribution.md`](docs/upstream_saros_attribution.md),
-[`citations/LICENSE`](citations/LICENSE), and
-[`citations/CITATION.cff`](citations/CITATION.cff).
+The software is MIT licensed. SAROS, TCIA, TotalSegmentator, nnU-Net, training
+data, and model weights retain separate terms. See the
+[`third party notices`](citations/THIRD_PARTY_NOTICES.md),
+[`license`](citations/LICENSE), and [`citation file`](citations/CITATION.cff).

@@ -12,6 +12,7 @@ ROOT_FILES = {
     ".gitignore",
     "citations/CITATION.cff",
     "citations/LICENSE",
+    "citations/THIRD_PARTY_NOTICES.md",
     "README.md",
     "ct_viewer.html",
     "dual_agent_config_v1.json",
@@ -40,6 +41,16 @@ TEXT_SUFFIXES = {
 REQUIRED_IGNORE_RULES = (
     "/data/", "/gold_standard_20/", "/nnUNet_training/",
     "/agent2_finetune_runs/", "/safe to remove/", "/uncertain/", ".Rhistory",
+)
+REQUIRED_NOTICE_MARKERS = (
+    "10.25737/SZ96-ZG60",
+    "10.1038/s41597-024-03337-6",
+    "10.1007/s10278-013-9622-7",
+    "10.5281/zenodo.10047292",
+    "10.1148/ryai.230024",
+    "10.1038/s41592-020-01008-z",
+    "CC BY 4.0",
+    "Apache License 2.0",
 )
 CONTENT_RULES = {
     "personal Windows user path": re.compile(r"[A-Za-z]:\\Users\\[^\\\s]+", re.I),
@@ -104,6 +115,13 @@ def audit() -> dict[str, object]:
     for rule in REQUIRED_IGNORE_RULES:
         if rule not in ignore_text:
             errors.append(f"missing required ignore rule: {rule}")
+
+    notice_text = (ROOT / "citations/THIRD_PARTY_NOTICES.md").read_text(
+        encoding="utf-8"
+    )
+    for marker in REQUIRED_NOTICE_MARKERS:
+        if marker not in notice_text:
+            errors.append(f"missing required third-party notice: {marker}")
 
     for relative in APPROVED_BINARY_FILES:
         if not (ROOT / relative).is_file():

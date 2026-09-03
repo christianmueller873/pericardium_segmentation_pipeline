@@ -12,8 +12,14 @@ manifest, or review gallery is approved for public Git history by default.
   screenshots, terminal history, or browser notifications.
 - Keep model checkpoints out of ordinary Git history. Publish only the two
   frozen, hash-verified packages documented in `models/README.md` as GitHub
-  Release assets.
+  Release assets after their distribution authorization and model weight terms
+  are documented.
 - Never use `git add -f` on ignored medical/model paths.
+
+SAROS annotations, underlying TCIA images, the TotalSegmentator dataset, and
+TotalSegmentator software retain their own licenses and citation requirements.
+The project MIT license does not replace them. See
+the [third party notices](../citations/THIRD_PARTY_NOTICES.md).
 
 ## Local protections
 
@@ -26,6 +32,8 @@ file must still be reviewed before the first push.
 
 ## Real demonstration recording
 
-A real local inference recording may use the selected public SAROS CT after
-frame-by-frame review. It must not show patient aliases, personal paths, hidden
-notifications, or restricted image content. See `docs/demo_recording.md`.
+A real local inference recording may use a public CT after frame-by-frame
+review. It must not show patient aliases, personal paths, hidden notifications,
+or restricted image content. Its exact dataset case, originating collection,
+citation, and license must be recorded before public release. See
+[`demo_recording.md`](demo_recording.md).

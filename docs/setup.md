@@ -10,6 +10,25 @@ Exact installed ML package versions from the working training environment are
 recorded in `docs/environment_versions.json`. Do not replace a working local
 environment merely to reproduce a speculative dependency lock.
 
+For a fresh Python 3.11 environment, install the tested inference stack with:
+
+```powershell
+python -m pip install -r requirements_dual_agent_v1.txt
+```
+
+The PyTorch build must match the intended CPU or CUDA platform. The verified
+machine used PyTorch 2.11.0 with CUDA 12.8. Use the official PyTorch installation
+[selector](https://pytorch.org/get-started/locally/) if the default package is
+not suitable for the target hardware.
+
+The Poetry configuration retains the original SAROS dataset utilities. A fresh
+Poetry environment also needs the inference requirements:
+
+```powershell
+poetry install --no-root
+poetry run python -m pip install -r requirements_dual_agent_v1.txt
+```
+
 From the working environment, create the sanitized version report with:
 
 ```powershell
@@ -19,6 +38,11 @@ poetry run python scripts/report_environment.py --output docs/environment_versio
 The report contains only Python and package versions; it omits usernames,
 machine names, filesystem paths, and environment variables. Regenerate it after
 intentional environment upgrades.
+
+TotalSegmentator is a training provenance tool and is not required for released
+inference. The exact historical generation version was not logged; the current
+2.18.0 environment is documented as a reproduction baseline in
+`docs/training.md`.
 
 ## Checkpoint placement
 
