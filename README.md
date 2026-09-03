@@ -46,14 +46,12 @@ patient-level 16/3 split, and fit on 19 accepted gold-standard patients. One
 additional patient, published here only as `heldout-001`, was kept outside
 optimization and checkpoint selection.
 
-| Metric | Pretrained Agent 2 | Gold-refined Agent 2 |
+| Metric | Pretrained Agent 2 | Refined Agent 2 |
 |---|---:|---:|
 | Dice | 0.8684 | **0.9273** |
 | Precision | **0.9450** | 0.9405 |
 | Recall | 0.8033 | **0.9143** |
 | Boundary F1 at 1.5 mm | 0.5794 | **0.6666** |
-| Mean symmetric surface distance | 3.03 mm | **1.97 mm** |
-| HD95 | 13.71 mm | **9.41 mm** |
 
 These measurements cover 39 annotated slices from one held-out patient. They
 demonstrate improvement on that case, not population-level generalization.
