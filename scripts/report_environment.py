@@ -1,5 +1,3 @@
-"""Report reproducibility-relevant package versions without personal paths."""
-
 from __future__ import annotations
 
 import argparse

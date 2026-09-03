@@ -1,5 +1,3 @@
-"""Audit the explicitly proposed first-release file set."""
-
 from __future__ import annotations
 
 import hashlib

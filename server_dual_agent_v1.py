@@ -1,5 +1,3 @@
-"""FastAPI runtime for sequential dual-agent pericardial-sac inference."""
-
 from __future__ import annotations
 
 import gc
@@ -104,8 +102,6 @@ def _release_cuda() -> None:
 
 
 def run_agent1(input_nii_path: Path, output_dir: Path) -> tuple[np.ndarray, nib.Nifti1Image]:
-    """Run the frozen nnU-Net model and return only pericardium label 7."""
-
     from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -160,8 +156,6 @@ def build_agent2_model(device: torch.device) -> UNet:
 
 
 def run_agent2(input_nii_path: Path, native_target: nib.Nifti1Image) -> np.ndarray:
-    """Run the refined 3D U-Net and return probabilities on the native grid."""
-
     transform = Compose([
         LoadImaged(keys=["image"]),
         EnsureChannelFirstd(keys=["image"]),
@@ -246,8 +240,6 @@ def _flat_slices(mask_xyz: np.ndarray) -> dict[str, list[int]]:
 
 
 def _rle_slices(mask_xyz: np.ndarray) -> dict[str, dict[str, Any]]:
-    """Encode foreground runs independently for each nonempty axial slice."""
-
     slices: dict[str, dict[str, Any]] = {}
     for z in range(mask_xyz.shape[2]):
         flat = np.asarray(mask_xyz[:, :, z], dtype=np.uint8).T.ravel()
@@ -306,8 +298,6 @@ def health(check_hashes: bool = False):
 
 @app.post("/segment")
 async def segment(file: UploadFile = File(...)):
-    """Return the automatic fused mask in the original flat-slice schema."""
-
     try:
         outputs, diagnostics = await _segment_request(file)
         fused = outputs["fused"]
@@ -332,8 +322,6 @@ async def segment(file: UploadFile = File(...)):
 
 @app.post("/segment/compare")
 async def segment_compare(file: UploadFile = File(...)):
-    """Return all three masks and fusion diagnostics using compact RLE."""
-
     try:
         outputs, diagnostics = await _segment_request(file)
         return JSONResponse(content={

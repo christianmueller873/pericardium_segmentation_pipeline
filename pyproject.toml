@@ -15,8 +15,6 @@ pydicom = "^2.3.1"
 p-tqdm = "^1.4.0"
 openpyxl = "^3.1.2"
 nibabel = "^5.4.2"
-# pydicom-seg 0.4.1 requires NumPy <2.0; keep this explicit so a future
-# Poetry resolution cannot recreate the incompatible NumPy 2.x environment.
 numpy = ">=1.26.4,<2.0"
 scipy = "<1.15"
 pillow = "<11"

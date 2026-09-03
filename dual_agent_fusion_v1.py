@@ -1,5 +1,3 @@
-"""Conservative fusion for coarse and precise pericardial-sac predictions."""
-
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
@@ -11,8 +9,6 @@ from scipy import ndimage
 
 @dataclass(frozen=True)
 class FusionConfig:
-    """Validated thresholds and safety policies for automatic fusion."""
-
     agent2_threshold: float = 0.50
     partial_recovery_probability: float = 0.20
     complete_recovery_probability: float = 0.12
@@ -111,8 +107,6 @@ def _clean_slices(mask: np.ndarray, min_pixels: int) -> np.ndarray:
 
 
 def _component_quality_3d(mask: np.ndarray) -> tuple[np.ndarray, int, int, float]:
-    """Return the largest component and summary connectedness statistics."""
-
     mask = np.asarray(mask, dtype=bool)
     if not mask.any():
         return np.zeros_like(mask), 0, 0, 0.0
@@ -126,8 +120,6 @@ def _component_quality_3d(mask: np.ndarray) -> tuple[np.ndarray, int, int, float
 
 
 def _filled_largest_component_3d(mask: np.ndarray) -> np.ndarray:
-    """Keep one 3D component and fill its holes independently by axial slice."""
-
     component, _, _, _ = _component_quality_3d(mask)
     for z in np.flatnonzero(component.any(axis=(0, 1))):
         component[:, :, z] = ndimage.binary_fill_holes(component[:, :, z])
@@ -135,8 +127,6 @@ def _filled_largest_component_3d(mask: np.ndarray) -> np.ndarray:
 
 
 def _keep_component_touching_seed(mask: np.ndarray, seed: np.ndarray) -> np.ndarray:
-    """Keep only candidate components that touch the supplied seed mask."""
-
     mask = np.asarray(mask, dtype=bool)
     seed = np.asarray(seed, dtype=bool)
     if not mask.any() or not seed.any():
@@ -155,8 +145,6 @@ def _cap_added_area(
     probability: np.ndarray,
     maximum_total_area: int,
 ) -> np.ndarray:
-    """Cap proposed foreground additions while favoring higher probability."""
-
     base = np.asarray(base, dtype=bool)
     proposed = np.asarray(proposed, dtype=bool)
     maximum_total_area = max(int(maximum_total_area), int(base.sum()))
@@ -193,8 +181,6 @@ def fuse_pericardium(
     spacing_xyz: tuple[float, float, float],
     config: FusionConfig | None = None,
 ) -> tuple[np.ndarray, dict[str, Any]]:
-    """Fuse Agent 1 and Agent 2 without weakening a coherent precise mask."""
-
     cfg = config or FusionConfig()
     cfg.validate()
     spacing_x, spacing_y, spacing_z = _slice_spacing(spacing_xyz)

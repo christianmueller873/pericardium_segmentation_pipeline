@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>CT Viewer</title>
 <style>
-  /* ── reset & tokens ───────────────────────────────────────────────────── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
@@ -35,7 +34,6 @@
     overflow: hidden;
   }
 
-  /* ── top bar ──────────────────────────────────────────────────────────── */
   header {
     display: flex;
     align-items: center;
@@ -48,7 +46,6 @@
   header h1 { font-size: 14px; letter-spacing: .10em; color: var(--text); }
   header .spacer { flex: 1; }
 
-  /* file inputs */
   .file-group { display: flex; gap: 8px; align-items: center; }
   .file-label {
     cursor: pointer;
@@ -63,7 +60,6 @@
   .file-label:hover { border-color: var(--brown-hi); background: #24211d; }
   .file-label input { display: none; }
 
-  /* segment button */
   #btn-segment {
     padding: 5px 14px;
     border: 1px solid var(--accent);
@@ -78,7 +74,6 @@
   #btn-segment:hover:not(:disabled) { background: var(--accent-hi); color: var(--text); }
   #btn-segment:disabled { opacity: .35; cursor: default; }
 
-  /* status pill */
   #status {
     font-size: 11px;
     padding: 3px 10px;
@@ -93,14 +88,12 @@
   #status.done    { background: #1b3521; color: #d9e4da; }
   #status.error   { background: #4a3426; color: #f2f3f1; }
 
-  /* ── layout ───────────────────────────────────────────────────────────── */
   .workspace {
     display: flex;
     flex: 1;
     overflow: hidden;
   }
 
-  /* sidebar */
   aside {
     width: 260px;
     flex-shrink: 0;
@@ -140,7 +133,6 @@
   }
   .toggle-row span { font-size: 12px; }
 
-  /* toggle switch */
   .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
   .switch input { display: none; }
   .slider {
@@ -162,12 +154,10 @@
   input:checked + .slider { background: var(--accent-hi); }
   input:checked + .slider::before { transform: translateX(16px); }
 
-  /* legend swatch */
   .legend { display: flex; flex-direction: column; gap: 6px; }
   .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; }
   .swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
 
-  /* ── canvas area ─────────────────────────────────────────────────────── */
   main {
     flex: 1;
     display: flex;
@@ -191,7 +181,6 @@
   #canvas-ct      { z-index: 1; }
   #canvas-overlay { z-index: 2; pointer-events: auto; }
 
-  /* slice slider at bottom */
   #slice-bar {
     position: absolute;
     bottom: 20px;
@@ -211,7 +200,6 @@
   #slice-slider { width: 220px; accent-color: var(--accent); }
   #slice-num { font-size: 11px; min-width: 55px; text-align: right; color: var(--text); }
 
-  /* drop hint */
   #hint {
     color: var(--muted);
     font-size: 14px;
@@ -219,7 +207,6 @@
     pointer-events: none;
   }
 
-  /* coordinate readout */
   #coords {
     position: absolute;
     top: 10px; right: 14px;
@@ -286,7 +273,6 @@
 </head>
 <body>
 
-<!-- ── header ─────────────────────────────────────────────────────────────── -->
 <header>
   <h1>CT VIEWER</h1>
   <div class="file-group">
@@ -300,10 +286,8 @@
   <div id="status">no file loaded</div>
 </header>
 
-<!-- ── workspace ─────────────────────────────────────────────────────────── -->
 <div class="workspace">
 
-  <!-- sidebar -->
   <aside>
     <h2>Display</h2>
 
@@ -371,7 +355,6 @@
     </div>
   </aside>
 
-  <!-- canvas -->
   <main id="main-area">
     <div id="hint">Load a NIfTI CT file to begin</div>
     <div id="canvas-wrap" style="display:none;">
@@ -389,9 +372,6 @@
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════════════════════════════════════ */
 const API = 'http://localhost:8000';
 
 let ctVolume  = null;   // Float32Array, shape [H, W, Z]
@@ -411,9 +391,6 @@ let selectedOutput = 'fused';
 let comparisonStates = {};
 let fusionDiagnostics = null;
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   DOM REFS
-═══════════════════════════════════════════════════════════════════════════ */
 const canvasCT      = document.getElementById('canvas-ct');
 const canvasOL      = document.getElementById('canvas-overlay');
 const ctxCT         = canvasCT.getContext('2d');
@@ -428,7 +405,6 @@ const btnSegment    = document.getElementById('btn-segment');
 const infoBox       = document.getElementById('info-box');
 const coordsEl      = document.getElementById('coords');
 
-/* ── controls ── */
 const wcSlider      = document.getElementById('wc');
 const wwSlider      = document.getElementById('ww');
 const opSlider      = document.getElementById('overlay-opacity');
@@ -449,10 +425,6 @@ const outputButtons = {
   agent2: outputAgent2,
 };
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   NIFTI LOADER  (pure JS, no server needed)
-   Supports .nii and .nii.gz (via DecompressionStream)
-═══════════════════════════════════════════════════════════════════════════ */
 async function decompressGzip(buffer) {
   const ds = new DecompressionStream('gzip');
   const writer = ds.writable.getWriter();
@@ -502,9 +474,6 @@ async function loadNifti(file) {
   return parseNifti(buf);
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   RENDER
-═══════════════════════════════════════════════════════════════════════════ */
 function getWC()      { return parseInt(wcSlider.value); }
 function getWW()      { return parseInt(wwSlider.value); }
 function getOpacity() { return parseInt(opSlider.value) / 100; }
@@ -542,7 +511,6 @@ function renderCT() {
     }
   }
 
-  // Draw to temp canvas then scale
   const tmp = document.createElement('canvas');
   tmp.width = W; tmp.height = H;
   tmp.getContext('2d').putImageData(imgData, 0, 0);
@@ -594,9 +562,6 @@ function labelColor(label) {
   return palette[(label - 1) % palette.length];
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   LOCAL MASK EDITING
-═══════════════════════════════════════════════════════════════════════════ */
 function normalizeMaskData(raw) {
   if (!raw || !raw.slices || !volShape) throw new Error('Invalid mask response');
   const expected = volShape[0] * volShape[1];
@@ -826,8 +791,6 @@ function smoothMaskAt(cx, cy) {
   }
   if (foregroundTarget === 0 || foregroundTarget === indices.length) return 0;
 
-  // Select a threshold that keeps approximately the same local area. This
-  // rounds the boundary without turning the brush into an erosion tool.
   let low = 0, high = 1;
   for (let step = 0; step < 16; step++) {
     const threshold = (low + high) / 2;
@@ -951,9 +914,6 @@ function slicesEqual(first, second) {
   return true;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   UI WIRING
-═══════════════════════════════════════════════════════════════════════════ */
 function setStatus(msg, cls = '') {
   statusEl.textContent = msg;
   statusEl.className   = cls;
@@ -976,7 +936,6 @@ function updateInfo() {
   infoBox.innerHTML = `Dims: ${H} × ${W} × ${Z}${output}${hasMask}${edits}${fallback}`;
 }
 
-// Load CT file
 document.getElementById('file-ct').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -1018,7 +977,6 @@ document.getElementById('file-ct').addEventListener('change', async (e) => {
   }
 });
 
-// Slice slider
 sliceSlider.addEventListener('input', () => {
   endBrushStroke();
   currentZ = parseInt(sliceSlider.value);
@@ -1027,7 +985,6 @@ sliceSlider.addEventListener('input', () => {
   syncSmoothingControls();
 });
 
-// Display controls
 [wcSlider, wwSlider].forEach(s => s.addEventListener('input', () => {
   document.getElementById('wc-val').textContent   = wcSlider.value;
   document.getElementById('ww-val').textContent   = wwSlider.value;
@@ -1097,7 +1054,6 @@ btnResetSlice.addEventListener('click', () => {
   updateInfo();
 });
 
-// Keyboard: arrow keys for slice navigation
 window.addEventListener('keydown', (e) => {
   if (!volShape) return;
   if (isBrushing) endBrushStroke();
@@ -1112,7 +1068,6 @@ window.addEventListener('keydown', (e) => {
   syncSmoothingControls();
 });
 
-// Mouse coordinates and mask-editing brushes
 canvasOL.addEventListener('mousemove', (e) => {
   if (!volShape) return;
   const point = eventToVoxel(e);
@@ -1146,9 +1101,6 @@ canvasOL.addEventListener('mouseleave', () => {
 window.addEventListener('mouseup', endBrushStroke);
 canvasOL.addEventListener('contextmenu', e => e.preventDefault());
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   SEGMENTATION  (calls FastAPI server)
-═══════════════════════════════════════════════════════════════════════════ */
 btnSegment.addEventListener('click', async () => {
   if (!uploadedFile) return;
   setStatus('running inference…', 'running');

@@ -1,5 +1,3 @@
-"""Verify dual-agent dependencies, frozen assets, labels, and hashes."""
-
 from __future__ import annotations
 
 import argparse
