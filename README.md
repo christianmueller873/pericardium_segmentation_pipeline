@@ -5,6 +5,16 @@ It combines a coarse 2D nnU-Net anatomical guide with a precise 3D residual
 U-Net and a conservative fusion layer designed to reject incompatible model
 outputs rather than silently merge them.
 
+## See it working
+
+▶ **[Watch the real-inference demo (75 seconds)](demo/full_pipeline_demo.mp4)**
+
+The recording shows the complete local workflow on a public SAROS CT: loading
+the volume, running both segmentation agents, reviewing the fused result, and
+using the viewer's editing controls. The 1-minute-59-second inference wait is
+clearly shortened in the recording, and the results portion is shown at 2×
+speed. The video has no audio.
+
 > **Research use only.** This software is not a medical device, has not been
 > clinically validated, and must not be used for diagnosis or patient care.
 
@@ -17,15 +27,7 @@ outputs rather than silently merge them.
   local paint/erase/smooth/undo tools.
 - Checkpoint SHA-256 verification and held-out leakage guards.
 - Patient-level refinement and one-time held-out evaluation.
-- A fully synthetic, precomputed browser demo that requires no medical data or
-  model download.
 - A reviewed real-inference recording made from an approved public SAROS CT.
-
-Open [`demo/index.html`](demo/index.html) locally to explore the synthetic demo.
-After GitHub Pages is enabled, the same demo can be hosted as a static site.
-The [real-inference recording](demo/assets/full_pipeline_demo.mp4) shows an
-actual local run; its idle inference wait was shortened and the results portion
-is shown at 2× speed. It contains no audio.
 
 ## System overview
 
@@ -111,7 +113,6 @@ python -m unittest -v test_dual_agent_config_v1.py
 python -m unittest -v test_dual_agent_paths_v1.py
 python -m unittest -v test_dual_agent_fusion_v1.py
 node test_ct_viewer_smoothing.js
-node test_static_demo.js
 ```
 
 The fusion and frontend tests use synthetic arrays and do not load medical
@@ -126,7 +127,7 @@ images or checkpoints.
 | `dual_agent_config_v1.json` | Frozen thresholds, hashes, and portable paths |
 | `dual_agent_paths_v1.py` | Environment and repository-relative path resolver |
 | `ct_viewer.html` | Local live-inference viewer and mask editor |
-| `demo/` | Synthetic precomputed static demonstration |
+| `demo/` | Real-inference demonstration recording |
 | `docs/` | Architecture, setup, training, evaluation, privacy, and limitations |
 | `models/` | Checkpoint placement guidance and model cards |
 | `results/` | Machine-readable held-out metrics |
@@ -154,4 +155,6 @@ See [`docs/limitations.md`](docs/limitations.md).
 This project began from the University Medicine Essen SAROS dataset repository
 and retains its MIT license and copyright notice. SAROS dataset access and
 citations remain governed by their original sources. See
-[`docs/upstream_saros_attribution.md`](docs/upstream_saros_attribution.md).
+[`docs/upstream_saros_attribution.md`](docs/upstream_saros_attribution.md),
+[`citations/LICENSE`](citations/LICENSE), and
+[`citations/CITATION.cff`](citations/CITATION.cff).
