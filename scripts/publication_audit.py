@@ -54,6 +54,8 @@ CONTENT_RULES = {
 APPROVED_BINARY_FILES = {
     "demo/full_pipeline_demo.mp4":
         "b8735bb4947be8e05a592e1521021780e95b7a6584dead0096a3274478a36658",
+    "demo/full_pipeline_demo_unedited_full_length.mp4":
+        "f656c98016596aaee741610ad024839cea30c94aaffbf4e12525d94b0158feea",
 }
 
 
