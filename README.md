@@ -1,24 +1,23 @@
 # Dual Agent Pericardial Sac Segmentation
 
 A research prototype for automatic segmentation of the pericardial sac in
-computed tomography (CT) volumes. It combines a coarse 2D nnU-Net (an
-automatically configured medical image segmentation framework) anatomical
-guide with a precise 3D residual U-Net (a neural network that preserves fine
-image detail). A conservative fusion layer rejects mismatched results rather
-than silently merging them.
+computed tomography (CT) volumes. It combines a coarse 2D nnU-Net anatomical
+guide with a 3D residual U-Net focused towards fine
+image detail. A fusion layer rejects mismatched results rather
+than merging them.
 
-## See it working
+## Working Demo
 
 **[Watch the full run demo (75 seconds)](demo/full_pipeline_demo.mp4)**
 
 The recording shows the complete local workflow on a public SAROS CT: loading
 the volume, running both segmentation agents, reviewing the fused result, and
-using the viewer's editing controls. The inference wait lasted 1 minute 59
+using the editing controls. The inference wait lasted 1 minute 59
 seconds and is clearly shortened in the recording. The results portion is shown
-at 2x speed.
+at 2x speed. An unedited demo version is also available.
 
-Research use only. This software is not a medical device, has not been
-clinically validated, and must not be used for diagnosis or patient care.
+*Research use only. This software has not been
+clinically validated yet.
 
 ## What this repository demonstrates
 
