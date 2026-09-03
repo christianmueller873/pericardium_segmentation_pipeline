@@ -15,7 +15,7 @@ The recording shows the complete local workflow on a public SAROS CT: loading
 the volume, running both segmentation agents, reviewing the fused result, and
 using the viewer's editing controls. The inference wait lasted 1 minute 59
 seconds and is clearly shortened in the recording. The results portion is shown
-at 2x speed. The video has no audio.
+at 2x speed.
 
 Research use only. This software is not a medical device, has not been
 clinically validated, and must not be used for diagnosis or patient care.
@@ -28,7 +28,7 @@ clinically validated, and must not be used for diagnosis or patient care.
   mutually incompatible masks.
 - A browser CT viewer with slice navigation, windowing, overlay control, and
   local paint/erase/smooth/undo tools.
-- Checkpoint SHA-256 verification (a cryptographic check that confirms saved
+- Checkpoint SHA-256 verification (cryptographic check that confirms saved
   model weight files are unchanged) and data leakage guards.
 - Refinement at patient level and a single evaluation on a held out patient.
 - A reviewed recording of real inference made from an approved public SAROS CT.
