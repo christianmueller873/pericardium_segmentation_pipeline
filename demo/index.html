@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dual-Agent Pericardium — Synthetic Demo</title>
+<style>
+  :root {
+    --bg:#080a08; --surface:#151915; --panel:#1d221e; --border:#3c453e;
+    --accent:#3f6a4a; --accent2:#9b7355; --text:#f2f4f1; --muted:#a5ada6;
+    --mask:#e85d5b;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; background:var(--bg); color:var(--text);
+    font:14px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace; }
+  header { display:flex; gap:18px; align-items:center; padding:14px 20px;
+    background:var(--surface); border-bottom:1px solid var(--border); }
+  header h1 { margin:0; font-size:15px; letter-spacing:.08em; }
+  header p { margin:0; color:var(--muted); font-size:11px; }
+  .badge { margin-left:auto; padding:5px 10px; border:1px solid var(--accent2);
+    border-radius:999px; color:#e5cdbb; font-size:10px; white-space:nowrap; }
+  .layout { display:grid; grid-template-columns:280px minmax(300px,1fr); min-height:calc(100vh - 66px); }
+  aside { padding:18px; background:var(--surface); border-right:1px solid var(--border); }
+  section { margin-bottom:20px; }
+  h2 { margin:0 0 9px; font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:#cbd1cc; }
+  .tabs,.tools { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  button { padding:8px 5px; border:1px solid var(--border); border-radius:6px;
+    background:#242a25; color:var(--muted); font:11px inherit; cursor:pointer; }
+  button:hover { border-color:var(--accent2); color:var(--text); }
+  button.active { background:var(--accent); border-color:#5b8b67; color:white; }
+  label { display:flex; justify-content:space-between; margin:9px 0 4px; color:var(--muted); font-size:11px; }
+  input[type=range] { width:100%; accent-color:var(--accent); }
+  .toggle { display:flex; justify-content:space-between; align-items:center; color:var(--muted); }
+  .note { padding:10px; border-left:3px solid var(--accent2); background:#241f1b; color:#d8c5b7; font-size:10px; }
+  .info { color:var(--muted); font-size:11px; line-height:1.8; }
+  main { display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:0; padding:22px; }
+  .canvas-frame { position:relative; width:min(68vh,72vw); aspect-ratio:1; max-width:700px;
+    border:1px solid var(--border); background:#000; box-shadow:0 18px 50px #0008; }
+  canvas { position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated; }
+  #overlay { cursor:crosshair; }
+  .slice-control { display:flex; align-items:center; gap:12px; width:min(680px,76vw); margin-top:18px;
+    padding:9px 15px; border:1px solid var(--border); border-radius:999px; background:var(--surface); }
+  .slice-control input { flex:1; }
+  .slice-control span { min-width:72px; text-align:right; color:var(--muted); font-size:11px; }
+  footer { margin-top:14px; color:var(--muted); font-size:10px; text-align:center; max-width:680px; }
+  .evidence { padding:28px; border-top:1px solid var(--border); background:#0d110e; text-align:center; }
+  .evidence p { max-width:780px; margin:0 auto 16px; color:var(--muted); font-size:12px; line-height:1.6; }
+  .evidence video { display:block; width:min(100%,960px); margin:auto; border:1px solid var(--border);
+    border-radius:8px; background:#000; }
+  @media (max-width:800px) {
+    header { align-items:flex-start; flex-wrap:wrap; } .badge { margin-left:0; }
+    .layout { grid-template-columns:1fr; } aside { border-right:0; border-bottom:1px solid var(--border); }
+    .canvas-frame { width:min(92vw,620px); } .slice-control { width:min(92vw,620px); }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>DUAL-AGENT PERICARDIUM</h1>
+    <p>Static comparison and editing walkthrough</p>
+  </div>
+  <div class="badge">SYNTHETIC DATA · NO LIVE INFERENCE</div>
+</header>
+<div class="layout">
+  <aside>
+    <section>
+      <h2>Model output</h2>
+      <div class="tabs">
+        <button id="select-fused" class="active">Fused</button>
+        <button id="select-agent1">Agent 1</button>
+        <button id="select-agent2">Agent 2</button>
+      </div>
+    </section>
+    <section>
+      <h2>Display</h2>
+      <label>Window centre <span id="wc-value">40</span></label>
+      <input id="wc" type="range" min="-200" max="200" value="40">
+      <label>Window width <span id="ww-value">400</span></label>
+      <input id="ww" type="range" min="100" max="800" value="400">
+      <label>Overlay opacity <span id="opacity-value">58%</span></label>
+      <input id="opacity" type="range" min="0" max="100" value="58">
+      <label class="toggle"><span>Show overlay</span><input id="show-overlay" type="checkbox" checked></label>
+    </section>
+    <section>
+      <h2>Local mask editing</h2>
+      <div class="tools">
+        <button id="tool-paint">Paint</button>
+        <button id="tool-erase">Erase</button>
+        <button id="tool-smooth">Smooth</button>
+      </div>
+      <label>Brush radius <span id="brush-value">8 px</span></label>
+      <input id="brush" type="range" min="3" max="22" value="8">
+      <button id="reset-slice" style="width:100%;margin-top:9px">Reset current slice</button>
+    </section>
+    <section>
+      <h2>Current state</h2>
+      <div class="info" id="info"></div>
+    </section>
+    <div class="note">
+      This demonstration uses deterministic anatomy-like pixels and illustrative
+      masks. It contains no patient data and does not report model accuracy.
+      Live inference requires the local Python service and authorized weights.
+    </div>
+  </aside>
+  <main>
+    <div class="canvas-frame">
+      <canvas id="scan" width="256" height="256"></canvas>
+      <canvas id="overlay" width="256" height="256"></canvas>
+    </div>
+    <div class="slice-control">
+      <span>Slice</span>
+      <input id="slice" type="range" min="0" max="31" value="16">
+      <span id="slice-value">17 / 32</span>
+    </div>
+    <footer>
+      Fused is the automatic default. Agent 1 illustrates a broad anatomical
+      proposal; Agent 2 illustrates a tighter boundary with range-end misses.
+    </footer>
+  </main>
+</div>
+<section class="evidence" aria-labelledby="real-demo-title">
+  <h2 id="real-demo-title">Real local inference recording</h2>
+  <p>
+    Actual inference on an approved public SAROS CT. The idle inference wait was
+    shortened, the results portion is shown at 2× speed, and audio was removed.
+    This research demonstration is not clinical validation or a benchmark.
+  </p>
+  <video controls preload="metadata" src="assets/full_pipeline_demo.mp4">
+    <a href="assets/full_pipeline_demo.mp4">Download the real-inference recording.</a>
+  </video>
+</section>
+<script>
+const SIZE = 256, DEPTH = 32;
+const scanCanvas = document.getElementById('scan');
+const overlayCanvas = document.getElementById('overlay');
+const scanContext = scanCanvas.getContext('2d');
+const overlayContext = overlayCanvas.getContext('2d');
+const sliceControl = document.getElementById('slice');
+const outputNames = ['fused', 'agent1', 'agent2'];
+const outputButtons = Object.fromEntries(outputNames.map(name => [name, document.getElementById(`select-${name}`)]));
+const edits = Object.fromEntries(outputNames.map(name => [name, new Map()]));
+let selectedOutput = 'fused';
+let activeTool = 'none';
+let drawing = false;
+
+function ellipse(x, y, cx, cy, rx, ry) {
+  return ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1;
+}
+
+function syntheticHu(x, y, z) {
+  const phase = (z - 15.5) / 15.5;
+  if (!ellipse(x, y, 128, 130, 102 - 6 * Math.abs(phase), 112)) return -1000;
+  let value = -70 + ((x * 17 + y * 13 + z * 19) % 23) - 11;
+  if (ellipse(x, y, 87, 116, 43, 65) || ellipse(x, y, 169, 116, 43, 65)) value = -760;
+  if (ellipse(x, y, 128, 154, 48, 42)) value = 45;
+  if (ellipse(x, y, 128, 205, 15, 13)) value = 340;
+  if (ellipse(x, y, 128, 148, 12, 15)) value = 100;
+  return value;
+}
+
+function generatedMask(name, z) {
+  const mask = new Uint8Array(SIZE * SIZE);
+  const phase = (z - 15.5) / 15.5;
+  const active = name === 'agent1' ? z >= 3 && z <= 28
+    : name === 'agent2' ? z >= 6 && z <= 25 : z >= 4 && z <= 27;
+  if (!active) return mask;
+  const cx = 128 + Math.sin(z * .31) * 3;
+  const cy = 151 - phase * 7;
+  let rx = 51 - Math.abs(phase) * 12;
+  let ry = 45 - Math.abs(phase) * 9;
+  if (name === 'agent1') { rx += 7; ry += 6; }
+  if (name === 'agent2') { rx -= 2; ry -= 1; }
+  if (name === 'fused' && (z < 6 || z > 25)) { rx += 3; ry += 2; }
+  for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+    const wobble = name === 'agent1' ? 1 + .035 * Math.sin(x * .19 + z) : 1;
+    if (((x - cx) / (rx * wobble)) ** 2 + ((y - cy) / ry) ** 2 <= 1) mask[y * SIZE + x] = 1;
+  }
+  return mask;
+}
+
+function currentMask() {
+  const z = Number(sliceControl.value);
+  return edits[selectedOutput].get(z) || generatedMask(selectedOutput, z);
+}
+
+function editableMask() {
+  const z = Number(sliceControl.value);
+  if (!edits[selectedOutput].has(z)) edits[selectedOutput].set(z, currentMask().slice());
+  return edits[selectedOutput].get(z);
+}
+
+function renderScan() {
+  const z = Number(sliceControl.value), wc = Number(document.getElementById('wc').value);
+  const ww = Number(document.getElementById('ww').value), low = wc - ww / 2;
+  const image = scanContext.createImageData(SIZE, SIZE);
+  for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+    const gray = Math.max(0, Math.min(255, (syntheticHu(x, y, z) - low) / ww * 255));
+    const p = (y * SIZE + x) * 4;
+    image.data[p] = image.data[p + 1] = image.data[p + 2] = gray;
+    image.data[p + 3] = 255;
+  }
+  scanContext.putImageData(image, 0, 0);
+}
+
+function renderOverlay() {
+  overlayContext.clearRect(0, 0, SIZE, SIZE);
+  if (!document.getElementById('show-overlay').checked) return;
+  const mask = currentMask(), opacity = Number(document.getElementById('opacity').value) / 100;
+  const image = overlayContext.createImageData(SIZE, SIZE);
+  for (let index = 0; index < mask.length; index++) if (mask[index]) {
+    const p = index * 4;
+    image.data[p] = 232; image.data[p + 1] = 93; image.data[p + 2] = 91;
+    image.data[p + 3] = Math.round(opacity * 255);
+  }
+  overlayContext.putImageData(image, 0, 0);
+}
+
+function renderInfo() {
+  const z = Number(sliceControl.value), mask = currentMask();
+  let area = 0; for (const value of mask) area += value;
+  const label = selectedOutput === 'fused' ? 'Fused' : selectedOutput === 'agent1' ? 'Agent 1' : 'Agent 2';
+  document.getElementById('info').innerHTML = `Output: ${label}<br>Slice: ${z + 1} / ${DEPTH}<br>Mask pixels: ${area.toLocaleString()}<br>Edited: ${edits[selectedOutput].has(z) ? 'yes' : 'no'}`;
+}
+
+function render() {
+  renderScan(); renderOverlay(); renderInfo();
+  const z = Number(sliceControl.value);
+  document.getElementById('slice-value').textContent = `${z + 1} / ${DEPTH}`;
+}
+
+function selectOutput(name) {
+  selectedOutput = name;
+  for (const output of outputNames) outputButtons[output].classList.toggle('active', output === name);
+  render();
+}
+
+function selectTool(name) {
+  activeTool = activeTool === name ? 'none' : name;
+  for (const tool of ['paint', 'erase', 'smooth']) {
+    document.getElementById(`tool-${tool}`).classList.toggle('active', activeTool === tool);
+  }
+}
+
+function canvasPoint(event) {
+  const rect = overlayCanvas.getBoundingClientRect();
+  return {
+    x: Math.floor((event.clientX - rect.left) * SIZE / rect.width),
+    y: Math.floor((event.clientY - rect.top) * SIZE / rect.height),
+  };
+}
+
+function applyBrush(point) {
+  if (activeTool === 'none') return;
+  const mask = editableMask(), radius = Number(document.getElementById('brush').value);
+  const original = activeTool === 'smooth' ? mask.slice() : null;
+  for (let y = Math.max(0, point.y - radius); y <= Math.min(SIZE - 1, point.y + radius); y++) {
+    for (let x = Math.max(0, point.x - radius); x <= Math.min(SIZE - 1, point.x + radius); x++) {
+      if ((x - point.x) ** 2 + (y - point.y) ** 2 > radius ** 2) continue;
+      const index = y * SIZE + x;
+      if (activeTool === 'paint') mask[index] = 1;
+      else if (activeTool === 'erase') mask[index] = 0;
+      else {
+        let votes = 0, total = 0;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+          const nx = x + dx, ny = y + dy;
+          if (nx >= 0 && nx < SIZE && ny >= 0 && ny < SIZE) { votes += original[ny * SIZE + nx]; total++; }
+        }
+        mask[index] = votes * 2 >= total ? 1 : 0;
+      }
+    }
+  }
+  renderOverlay(); renderInfo();
+}
+
+for (const name of outputNames) outputButtons[name].addEventListener('click', () => selectOutput(name));
+for (const name of ['paint', 'erase', 'smooth']) document.getElementById(`tool-${name}`).addEventListener('click', () => selectTool(name));
+sliceControl.addEventListener('input', render);
+for (const id of ['wc', 'ww']) document.getElementById(id).addEventListener('input', () => {
+  document.getElementById(`${id}-value`).textContent = document.getElementById(id).value; renderScan();
+});
+document.getElementById('opacity').addEventListener('input', event => {
+  document.getElementById('opacity-value').textContent = `${event.target.value}%`; renderOverlay();
+});
+document.getElementById('show-overlay').addEventListener('change', renderOverlay);
+document.getElementById('brush').addEventListener('input', event => document.getElementById('brush-value').textContent = `${event.target.value} px`);
+document.getElementById('reset-slice').addEventListener('click', () => { edits[selectedOutput].delete(Number(sliceControl.value)); render(); });
+overlayCanvas.addEventListener('mousedown', event => { drawing = true; applyBrush(canvasPoint(event)); });
+overlayCanvas.addEventListener('mousemove', event => { if (drawing && activeTool !== 'smooth') applyBrush(canvasPoint(event)); });
+window.addEventListener('mouseup', () => { drawing = false; });
+render();
+</script>
+</body>
+</html>

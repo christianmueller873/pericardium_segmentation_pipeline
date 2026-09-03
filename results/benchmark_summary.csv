@@ -1,0 +1,5 @@
+evaluation_id,model,dice,precision,recall,boundary_f1_1_5mm,mssd_mm,hd95_mm,annotated_slices,notes
+heldout-001,agent2_pretrained,0.868395,0.944999,0.803279,0.579443,3.0349,13.7142,39,Checkpoint before gold refinement
+heldout-001,agent2_gold_refined,0.927257,0.940547,0.914337,0.666637,1.9719,9.4102,39,Frozen one-time held-out evaluation
+heldout-001,fused,0.927257,0.940547,0.914337,0.666637,1.9719,9.4102,39,Agreement gate rejected Agent 1; fused output exactly equaled Agent 2
+heldout-001,agent1,0.006,,,,,,39,Approximate hard-label Dice only; incompatible label/domain on this case

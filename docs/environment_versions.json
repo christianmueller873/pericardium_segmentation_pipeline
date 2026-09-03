@@ -1,0 +1,15 @@
+{
+  "python": "3.11.9",
+  "implementation": "CPython",
+  "packages": {
+    "fastapi": "0.141.1",
+    "monai": "1.6.0",
+    "nibabel": "5.4.2",
+    "nnunetv2": "2.8.1",
+    "numpy": "1.26.4",
+    "python-multipart": "0.0.32",
+    "scipy": "1.14.1",
+    "torch": "2.11.0+cu128",
+    "uvicorn": "0.52.4"
+  }
+}

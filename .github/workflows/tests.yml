@@ -1,0 +1,47 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lightweight-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install lightweight test dependencies
+        run: python -m pip install -r requirements-ci.txt
+
+      - name: Run path and fusion tests
+        run: >-
+          python -m unittest -v
+          test_dual_agent_config_v1.py
+          test_dual_agent_paths_v1.py
+          test_dual_agent_fusion_v1.py
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run viewer tests
+        run: node test_ct_viewer_smoothing.js
+
+      - name: Run static-demo safety tests
+        run: node test_static_demo.js
+
+      - name: Audit proposed public files
+        run: python scripts/publication_audit.py

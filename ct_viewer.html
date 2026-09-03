@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CT Viewer</title>
+<style>
+  /* ── reset & tokens ───────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #070907;
+    --surface:   #141814;
+    --panel:     #1b201c;
+    --border:    #3b433d;
+    --accent:    #31563a;
+    --accent-hi: #477452;
+    --brown:     #8b6349;
+    --brown-hi:  #a57a59;
+    --peri:      rgba(232, 93, 91, 0.58);
+    --text:      #f2f3f1;
+    --muted:     #9aa19b;
+    --radius:    8px;
+    --font:      'JetBrains Mono', 'Fira Mono', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── top bar ──────────────────────────────────────────────────────────── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 18px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  header h1 { font-size: 14px; letter-spacing: .10em; color: var(--text); }
+  header .spacer { flex: 1; }
+
+  /* file inputs */
+  .file-group { display: flex; gap: 8px; align-items: center; }
+  .file-label {
+    cursor: pointer;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    white-space: nowrap;
+    background: var(--panel);
+    transition: border-color .2s, background .2s;
+  }
+  .file-label:hover { border-color: var(--brown-hi); background: #24211d; }
+  .file-label input { display: none; }
+
+  /* segment button */
+  #btn-segment {
+    padding: 5px 14px;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: var(--text);
+    cursor: pointer;
+    font-family: var(--font);
+    font-size: 13px;
+    transition: background .2s, color .2s;
+  }
+  #btn-segment:hover:not(:disabled) { background: var(--accent-hi); color: var(--text); }
+  #btn-segment:disabled { opacity: .35; cursor: default; }
+
+  /* status pill */
+  #status {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--border);
+    color: var(--muted);
+    min-width: 120px;
+    text-align: center;
+    transition: background .3s, color .3s;
+  }
+  #status.running { background: #33271f; color: #d4b69f; }
+  #status.done    { background: #1b3521; color: #d9e4da; }
+  #status.error   { background: #4a3426; color: #f2f3f1; }
+
+  /* ── layout ───────────────────────────────────────────────────────────── */
+  .workspace {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* sidebar */
+  aside {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 14px 12px;
+    gap: 14px;
+    overflow-y: auto;
+  }
+  aside h2 {
+    font-size: 11px;
+    letter-spacing: .1em;
+    color: #c8cec9;
+    text-transform: uppercase;
+    padding-top: 2px;
+  }
+
+  .ctrl-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ctrl-row label { font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; }
+  .ctrl-row input[type=range] {
+    width: 100%;
+    accent-color: var(--accent);
+  }
+  .ctrl-row input:disabled { opacity: .35; }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .toggle-row span { font-size: 12px; }
+
+  /* toggle switch */
+  .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+  .switch input { display: none; }
+  .slider {
+    position: absolute; inset: 0;
+    background: var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .slider::before {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    left: 3px; top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform .2s;
+  }
+  input:checked + .slider { background: var(--accent-hi); }
+  input:checked + .slider::before { transform: translateX(16px); }
+
+  /* legend swatch */
+  .legend { display: flex; flex-direction: column; gap: 6px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+
+  /* ── canvas area ─────────────────────────────────────────────────────── */
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: #020302;
+  }
+
+  #canvas-wrap {
+    position: relative;
+    cursor: default;
+  }
+  #canvas-ct,
+  #canvas-overlay {
+    position: absolute;
+    top: 0; left: 0;
+  }
+  #canvas-ct      { z-index: 1; }
+  #canvas-overlay { z-index: 2; pointer-events: auto; }
+
+  /* slice slider at bottom */
+  #slice-bar {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(20,24,20,.90);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 6px 16px;
+    backdrop-filter: blur(6px);
+    z-index: 10;
+  }
+  #slice-bar label { font-size: 11px; color: var(--muted); white-space: nowrap; }
+  #slice-slider { width: 220px; accent-color: var(--accent); }
+  #slice-num { font-size: 11px; min-width: 55px; text-align: right; color: var(--text); }
+
+  /* drop hint */
+  #hint {
+    color: var(--muted);
+    font-size: 14px;
+    letter-spacing: .05em;
+    pointer-events: none;
+  }
+
+  /* coordinate readout */
+  #coords {
+    position: absolute;
+    top: 10px; right: 14px;
+    font-size: 11px;
+    color: var(--muted);
+    z-index: 10;
+  }
+
+  .tool-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--panel);
+  }
+  .button-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+  .tool-mode-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .tool-button {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    background: #232823;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 10px;
+    cursor: pointer;
+  }
+  .tool-button:hover:not(:disabled) { border-color: var(--brown-hi); background: #302820; }
+  .tool-button:disabled { opacity: .35; cursor: default; }
+  .tool-button.primary { background: var(--accent); border-color: var(--accent-hi); }
+  .tool-button.primary:hover:not(:disabled) { background: var(--accent-hi); }
+  .tool-button.active { background: var(--accent); border-color: var(--brown-hi); color: #fff; }
+  .tool-button.wide { grid-column: 1 / -1; }
+  .output-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .output-button {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 4px;
+    background: #232823;
+    color: var(--muted);
+    font-family: var(--font);
+    font-size: 10px;
+    cursor: pointer;
+  }
+  .output-button:hover:not(:disabled) { border-color: var(--brown-hi); color: var(--text); }
+  .output-button:disabled { opacity: .35; cursor: default; }
+  .output-button.active { background: var(--accent); border-color: var(--accent-hi); color: #fff; }
+  body.brush-active #canvas-overlay { cursor: none; }
+</style>
+</head>
+<body>
+
+<!-- ── header ─────────────────────────────────────────────────────────────── -->
+<header>
+  <h1>CT VIEWER</h1>
+  <div class="file-group">
+    <label class="file-label">
+      Load CT (.nii/.nii.gz)
+      <input type="file" id="file-ct" accept=".nii,.gz" />
+    </label>
+  </div>
+  <button id="btn-segment" disabled>Run Segmentation</button>
+  <div class="spacer"></div>
+  <div id="status">no file loaded</div>
+</header>
+
+<!-- ── workspace ─────────────────────────────────────────────────────────── -->
+<div class="workspace">
+
+  <!-- sidebar -->
+  <aside>
+    <h2>Display</h2>
+
+    <div class="ctrl-row">
+      <label>Window Centre <span id="wc-val">40</span></label>
+      <input type="range" id="wc" min="-1000" max="1000" value="40" />
+    </div>
+    <div class="ctrl-row">
+      <label>Window Width <span id="ww-val">400</span></label>
+      <input type="range" id="ww" min="1" max="4000" value="400" />
+    </div>
+    <h2>Overlay</h2>
+
+    <div class="toggle-row">
+      <span>Show pericardium</span>
+      <label class="switch">
+        <input type="checkbox" id="toggle-overlay" checked />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="ctrl-row">
+      <label>Opacity <span id="op-val">55%</span></label>
+      <input type="range" id="overlay-opacity" min="0" max="100" value="55" />
+    </div>
+
+    <h2>Model Output</h2>
+    <div class="output-tabs" id="output-tabs">
+      <button class="output-button" id="output-fused" disabled>Fused</button>
+      <button class="output-button" id="output-agent1" disabled>Agent 1</button>
+      <button class="output-button" id="output-agent2" disabled>Agent 2</button>
+    </div>
+
+    <h2>Mask Editing</h2>
+    <div class="tool-panel">
+      <div class="tool-mode-row">
+        <button class="tool-button" id="tool-smooth" disabled>Smooth</button>
+        <button class="tool-button" id="tool-paint" disabled>Paint</button>
+        <button class="tool-button" id="tool-erase" disabled>Erase</button>
+      </div>
+      <div class="ctrl-row">
+        <label>Brush area <span id="brush-size-val">36 px</span></label>
+        <input type="range" id="brush-size" min="5" max="90" step="1" value="36" disabled />
+      </div>
+      <div class="ctrl-row">
+        <label>Smoothing intensity <span id="brush-strength-val">50%</span></label>
+        <input type="range" id="brush-strength" min="10" max="100" step="1" value="50" disabled />
+      </div>
+      <div class="button-row">
+        <button class="tool-button" id="btn-undo" disabled>Undo Stroke</button>
+        <button class="tool-button" id="btn-reset-slice" disabled>Reset Slice</button>
+      </div>
+    </div>
+
+    <h2>Legend</h2>
+    <div class="legend" id="legend">
+      <div class="legend-item">
+        <div class="swatch" style="background:#e85d5b;"></div>
+        <span>Pericardium</span>
+      </div>
+    </div>
+
+    <h2>Info</h2>
+    <div id="info-box" style="font-size:11px;color:var(--muted);line-height:1.8;">
+      —
+    </div>
+  </aside>
+
+  <!-- canvas -->
+  <main id="main-area">
+    <div id="hint">Load a NIfTI CT file to begin</div>
+    <div id="canvas-wrap" style="display:none;">
+      <canvas id="canvas-ct"></canvas>
+      <canvas id="canvas-overlay"></canvas>
+    </div>
+    <div id="slice-bar" style="display:none;">
+      <label>Slice</label>
+      <input type="range" id="slice-slider" min="0" max="0" value="0" />
+      <span id="slice-num">0 / 0</span>
+    </div>
+    <div id="coords"></div>
+  </main>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════════════════ */
+const API = 'http://localhost:8000';
+
+let ctVolume  = null;   // Float32Array, shape [H, W, Z]
+let maskData  = null;   // object: { shape, slices, labels }
+let volShape  = null;   // [H, W, Z]
+let currentZ  = 0;
+let uploadedFile = null;
+let originalMaskSlices = new Map();
+let editedSlices = new Set();
+let undoStack = [];
+let brushPoint = null;
+let isBrushing = false;
+let lastBrushPoint = null;
+let strokeChanged = false;
+let activeTool = 'none';
+let selectedOutput = 'fused';
+let comparisonStates = {};
+let fusionDiagnostics = null;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DOM REFS
+═══════════════════════════════════════════════════════════════════════════ */
+const canvasCT      = document.getElementById('canvas-ct');
+const canvasOL      = document.getElementById('canvas-overlay');
+const ctxCT         = canvasCT.getContext('2d');
+const ctxOL         = canvasOL.getContext('2d');
+const wrap          = document.getElementById('canvas-wrap');
+const hint          = document.getElementById('hint');
+const sliceBar      = document.getElementById('slice-bar');
+const sliceSlider   = document.getElementById('slice-slider');
+const sliceNum      = document.getElementById('slice-num');
+const statusEl      = document.getElementById('status');
+const btnSegment    = document.getElementById('btn-segment');
+const infoBox       = document.getElementById('info-box');
+const coordsEl      = document.getElementById('coords');
+
+/* ── controls ── */
+const wcSlider      = document.getElementById('wc');
+const wwSlider      = document.getElementById('ww');
+const opSlider      = document.getElementById('overlay-opacity');
+const toggleOL      = document.getElementById('toggle-overlay');
+const toolSmooth    = document.getElementById('tool-smooth');
+const toolPaint     = document.getElementById('tool-paint');
+const toolErase     = document.getElementById('tool-erase');
+const brushSize     = document.getElementById('brush-size');
+const brushStrength = document.getElementById('brush-strength');
+const btnUndo       = document.getElementById('btn-undo');
+const btnResetSlice = document.getElementById('btn-reset-slice');
+const outputFused   = document.getElementById('output-fused');
+const outputAgent1  = document.getElementById('output-agent1');
+const outputAgent2  = document.getElementById('output-agent2');
+const outputButtons = {
+  fused: outputFused,
+  agent1: outputAgent1,
+  agent2: outputAgent2,
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   NIFTI LOADER  (pure JS, no server needed)
+   Supports .nii and .nii.gz (via DecompressionStream)
+═══════════════════════════════════════════════════════════════════════════ */
+async function decompressGzip(buffer) {
+  const ds = new DecompressionStream('gzip');
+  const writer = ds.writable.getWriter();
+  const reader = ds.readable.getReader();
+  writer.write(buffer);
+  writer.close();
+  const chunks = [];
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+  const total = chunks.reduce((s, c) => s + c.length, 0);
+  const out = new Uint8Array(total);
+  let off = 0;
+  for (const c of chunks) { out.set(c, off); off += c.length; }
+  return out.buffer;
+}
+
+function parseNifti(buffer) {
+  const view  = new DataView(buffer);
+  const dim   = [];
+  for (let i = 0; i < 8; i++) dim.push(view.getInt16(40 + i * 2, true));
+  const datatype = view.getInt16(70, true);
+  const voxOff   = view.getFloat32(108, true);
+  const offset   = voxOff > 0 ? voxOff : 352;
+
+  const H = dim[1], W = dim[2], Z = dim[3];
+
+  let raw;
+  if (datatype === 4)       raw = new Int16Array(buffer, offset);
+  else if (datatype === 8)  raw = new Int32Array(buffer, offset);
+  else if (datatype === 16) raw = new Float32Array(buffer, offset);
+  else if (datatype === 512) raw = new Uint16Array(buffer, offset);
+  else                      raw = new Int16Array(buffer, offset);
+
+  const vol = new Float32Array(H * W * Z);
+  for (let i = 0; i < vol.length; i++) vol[i] = raw[i];
+  const headerLength = Math.min(buffer.byteLength, Math.max(352, Math.floor(offset)));
+  const header = new Uint8Array(buffer.slice(0, headerLength));
+  return { vol, H, W, Z, header };
+}
+
+async function loadNifti(file) {
+  let buf = await file.arrayBuffer();
+  if (file.name.endsWith('.gz')) buf = await decompressGzip(buf);
+  return parseNifti(buf);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════════════════════════════════════ */
+function getWC()      { return parseInt(wcSlider.value); }
+function getWW()      { return parseInt(wwSlider.value); }
+function getOpacity() { return parseInt(opSlider.value) / 100; }
+
+function applyWindowing(hu, wc, ww) {
+  const lo = wc - ww / 2, hi = wc + ww / 2;
+  return Math.max(0, Math.min(255, ((hu - lo) / (hi - lo)) * 255));
+}
+
+function renderCT() {
+  if (!ctVolume || !volShape) return;
+  const [H, W, Z] = volShape;
+  const scale = 1;
+  const wc   = getWC(), ww = getWW();
+
+  canvasCT.width  = W * scale;
+  canvasCT.height = H * scale;
+  canvasOL.width  = W * scale;
+  canvasOL.height = H * scale;
+  wrap.style.width  = (W * scale) + 'px';
+  wrap.style.height = (H * scale) + 'px';
+
+  const imgData = ctxCT.createImageData(W, H);
+  const base    = currentZ * H * W;
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const idx = base + y * W + x;
+      const v   = applyWindowing(ctVolume[idx], wc, ww);
+      const px  = (y * W + x) * 4;
+      imgData.data[px]     = v;
+      imgData.data[px + 1] = v;
+      imgData.data[px + 2] = v;
+      imgData.data[px + 3] = 255;
+    }
+  }
+
+  // Draw to temp canvas then scale
+  const tmp = document.createElement('canvas');
+  tmp.width = W; tmp.height = H;
+  tmp.getContext('2d').putImageData(imgData, 0, 0);
+  ctxCT.imageSmoothingEnabled = false;
+  ctxCT.drawImage(tmp, 0, 0, W * scale, H * scale);
+
+  renderOverlay();
+}
+
+function renderOverlay() {
+  if (!volShape) return;
+  const [H, W] = volShape;
+  const scale = 1;
+  ctxOL.clearRect(0, 0, canvasOL.width, canvasOL.height);
+
+  if (maskData && toggleOL.checked) {
+    const sliceArr = maskData.slices[String(currentZ)];
+    if (sliceArr) {
+      const opacity = getOpacity();
+      const imgData = ctxOL.createImageData(W, H);
+      for (let i = 0; i < sliceArr.length; i++) {
+        const label = sliceArr[i];
+        if (label === 0) continue;
+        const px = i * 4;
+        const [r, g, b] = labelColor(label);
+        imgData.data[px]     = r;
+        imgData.data[px + 1] = g;
+        imgData.data[px + 2] = b;
+        imgData.data[px + 3] = Math.round(opacity * 255);
+      }
+      const tmp = document.createElement('canvas');
+      tmp.width = W; tmp.height = H;
+      tmp.getContext('2d').putImageData(imgData, 0, 0);
+      ctxOL.imageSmoothingEnabled = false;
+      ctxOL.drawImage(tmp, 0, 0, W * scale, H * scale);
+    }
+  }
+  drawBrushPreview();
+}
+
+function labelColor(label) {
+  const palette = [
+    [232,  93,  91],
+    [ 49,  86,  58],
+    [165, 122,  89],
+    [112, 121, 113],
+    [238, 240, 237],
+  ];
+  return palette[(label - 1) % palette.length];
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LOCAL MASK EDITING
+═══════════════════════════════════════════════════════════════════════════ */
+function normalizeMaskData(raw) {
+  if (!raw || !raw.slices || !volShape) throw new Error('Invalid mask response');
+  const expected = volShape[0] * volShape[1];
+  for (const [key, values] of Object.entries(raw.slices)) {
+    if (values.length !== expected) {
+      throw new Error(`Mask slice ${key} has ${values.length} values; expected ${expected}`);
+    }
+    raw.slices[key] = Uint8Array.from(values, value => value ? 1 : 0);
+  }
+  return raw;
+}
+
+function decodeRleMask(raw, shape) {
+  if (!raw || !raw.slices || !volShape) throw new Error('Invalid comparison output');
+  const expected = volShape[0] * volShape[1];
+  const slices = {};
+  for (const [key, encoded] of Object.entries(raw.slices)) {
+    const runs = encoded?.runs;
+    if (!Array.isArray(runs) || runs.length % 2 !== 0) {
+      throw new Error(`Invalid RLE on mask slice ${key}`);
+    }
+    const slice = new Uint8Array(expected);
+    for (let index = 0; index < runs.length; index += 2) {
+      const start = Number(runs[index]);
+      const length = Number(runs[index + 1]);
+      if (!Number.isInteger(start) || !Number.isInteger(length)
+          || start < 0 || length < 1 || start + length > expected) {
+        throw new Error(`Out-of-range RLE on mask slice ${key}`);
+      }
+      slice.fill(1, start, start + length);
+    }
+    slices[key] = slice;
+  }
+  return { shape, slices, labels: [1], nonzero_voxels: raw.nonzero_voxels || 0 };
+}
+
+function createComparisonState(mask) {
+  const originals = new Map();
+  for (const [key, values] of Object.entries(mask.slices)) {
+    originals.set(key, values.slice());
+  }
+  return {
+    mask,
+    originals,
+    edited: new Set(),
+    undo: [],
+  };
+}
+
+function normalizeComparisonResponse(raw) {
+  if (!raw || raw.encoding !== 'per-slice-foreground-rle-v1' || !raw.outputs) {
+    throw new Error('Invalid comparison response');
+  }
+  const states = {};
+  for (const name of ['fused', 'agent1', 'agent2']) {
+    if (!raw.outputs[name]) throw new Error(`Comparison response is missing ${name}`);
+    states[name] = createComparisonState(decodeRleMask(raw.outputs[name], raw.shape));
+  }
+  return states;
+}
+
+function syncOutputButtons() {
+  for (const [name, button] of Object.entries(outputButtons)) {
+    button.disabled = !comparisonStates[name];
+    button.classList.toggle('active', name === selectedOutput && !button.disabled);
+  }
+}
+
+function selectOutput(name, announce = true) {
+  const state = comparisonStates[name];
+  if (!state) return;
+  endBrushStroke();
+  selectedOutput = name;
+  maskData = state.mask;
+  originalMaskSlices = state.originals;
+  editedSlices = state.edited;
+  undoStack = state.undo;
+  activeTool = 'none';
+  document.body.classList.remove('brush-active');
+  syncOutputButtons();
+  renderOverlay();
+  syncSmoothingControls();
+  updateInfo();
+  if (announce) {
+    const label = name === 'fused' ? 'fused' : name === 'agent1' ? 'Agent 1' : 'Agent 2';
+    setStatus(`${label} output selected`, 'done');
+  }
+}
+
+function captureOriginalMask() {
+  originalMaskSlices = new Map();
+  for (const [key, values] of Object.entries(maskData.slices)) {
+    originalMaskSlices.set(key, values.slice());
+  }
+  editedSlices.clear();
+  undoStack = [];
+  syncSmoothingControls();
+}
+
+function syncSmoothingControls() {
+  const ready = Boolean(maskData && volShape);
+  toolSmooth.disabled = !ready;
+  toolPaint.disabled = !ready;
+  toolErase.disabled = !ready;
+  brushSize.disabled = !ready;
+  brushStrength.disabled = !ready || activeTool !== 'smooth';
+  btnUndo.disabled = !ready || undoStack.length === 0;
+  btnResetSlice.disabled = !ready || (
+    !originalMaskSlices.has(String(currentZ)) && !editedSlices.has(currentZ)
+  );
+  if (!ready) {
+    activeTool = 'none';
+    document.body.classList.remove('brush-active');
+  }
+  toolSmooth.classList.toggle('active', activeTool === 'smooth');
+  toolPaint.classList.toggle('active', activeTool === 'paint');
+  toolErase.classList.toggle('active', activeTool === 'erase');
+}
+
+function drawBrushPreview() {
+  if (!maskData || activeTool === 'none' || !brushPoint) return;
+  const radius = parseInt(brushSize.value);
+  ctxOL.save();
+  ctxOL.beginPath();
+  ctxOL.arc(brushPoint.x, brushPoint.y, radius, 0, Math.PI * 2);
+  ctxOL.strokeStyle = activeTool === 'paint' ? '#477452'
+    : activeTool === 'erase' ? '#a57a59' : '#f2f3f1';
+  ctxOL.lineWidth = 1.25;
+  ctxOL.setLineDash(activeTool === 'smooth' ? [5, 4] : []);
+  ctxOL.stroke();
+  ctxOL.beginPath();
+  ctxOL.arc(brushPoint.x, brushPoint.y, 2, 0, Math.PI * 2);
+  ctxOL.fillStyle = activeTool === 'paint' ? '#477452'
+    : activeTool === 'erase' ? '#a57a59' : '#f2f3f1';
+  ctxOL.fill();
+  ctxOL.restore();
+}
+
+function eventToVoxel(event) {
+  if (!volShape) return null;
+  const rect = canvasOL.getBoundingClientRect();
+  const [H, W] = volShape;
+  const x = (event.clientX - rect.left) * W / rect.width;
+  const y = (event.clientY - rect.top) * H / rect.height;
+  if (x < 0 || x >= W || y < 0 || y >= H) return null;
+  return { x, y };
+}
+
+function currentMaskSlice(create = false) {
+  if (!maskData) return null;
+  const key = String(currentZ);
+  if (!maskData.slices[key] && create && volShape) {
+    maskData.slices[key] = new Uint8Array(volShape[0] * volShape[1]);
+  }
+  return maskData.slices[key] || null;
+}
+
+function boxBlur(source, width, height, radius) {
+  const horizontal = new Float32Array(source.length);
+  const output = new Float32Array(source.length);
+  for (let y = 0; y < height; y++) {
+    let left = 0, right = -1, sum = 0;
+    for (let x = 0; x < width; x++) {
+      const wantedRight = Math.min(width - 1, x + radius);
+      while (right < wantedRight) sum += source[y * width + (++right)];
+      const wantedLeft = Math.max(0, x - radius);
+      while (left < wantedLeft) sum -= source[y * width + (left++)];
+      horizontal[y * width + x] = sum / (right - left + 1);
+    }
+  }
+  for (let x = 0; x < width; x++) {
+    let top = 0, bottom = -1, sum = 0;
+    for (let y = 0; y < height; y++) {
+      const wantedBottom = Math.min(height - 1, y + radius);
+      while (bottom < wantedBottom) sum += horizontal[(++bottom) * width + x];
+      const wantedTop = Math.max(0, y - radius);
+      while (top < wantedTop) sum -= horizontal[(top++) * width + x];
+      output[y * width + x] = sum / (bottom - top + 1);
+    }
+  }
+  return output;
+}
+
+function smoothMaskAt(cx, cy) {
+  const slice = currentMaskSlice();
+  if (!slice || !volShape) return 0;
+  const [H, W] = volShape;
+  const radius = parseInt(brushSize.value);
+  const intensity = parseInt(brushStrength.value) / 100;
+  const blurRadius = 1 + Math.floor(parseInt(brushStrength.value) / 15);
+  const passes = 1 + Math.floor(parseInt(brushStrength.value) / 35);
+  const padding = blurRadius * passes + 3;
+  const x0 = Math.max(0, Math.floor(cx - radius - padding));
+  const y0 = Math.max(0, Math.floor(cy - radius - padding));
+  const x1 = Math.min(W, Math.ceil(cx + radius + padding + 1));
+  const y1 = Math.min(H, Math.ceil(cy + radius + padding + 1));
+  const patchW = x1 - x0, patchH = y1 - y0;
+  let smoothed = new Float32Array(patchW * patchH);
+  for (let py = 0; py < patchH; py++) {
+    for (let px = 0; px < patchW; px++) {
+      smoothed[py * patchW + px] = slice[(y0 + py) * W + x0 + px] ? 1 : 0;
+    }
+  }
+  for (let pass = 0; pass < passes; pass++) {
+    smoothed = boxBlur(smoothed, patchW, patchH, blurRadius);
+  }
+
+  const indices = [];
+  const values = [];
+  let foregroundTarget = 0;
+  const feather = Math.max(3, radius * 0.20);
+  const radiusSquared = radius * radius;
+  for (let gy = Math.max(0, Math.floor(cy - radius)); gy <= Math.min(H - 1, Math.ceil(cy + radius)); gy++) {
+    for (let gx = Math.max(0, Math.floor(cx - radius)); gx <= Math.min(W - 1, Math.ceil(cx + radius)); gx++) {
+      const distanceSquared = (gx - cx) ** 2 + (gy - cy) ** 2;
+      if (distanceSquared > radiusSquared) continue;
+      const globalIndex = gy * W + gx;
+      const oldValue = slice[globalIndex] ? 1 : 0;
+      const distance = Math.sqrt(distanceSquared);
+      const edgeWeight = Math.max(0, Math.min(1, (radius - distance) / feather));
+      const weight = edgeWeight * (0.35 + 0.65 * intensity);
+      const blurredValue = smoothed[(gy - y0) * patchW + (gx - x0)];
+      indices.push(globalIndex);
+      values.push(oldValue * (1 - weight) + blurredValue * weight);
+      foregroundTarget += oldValue;
+    }
+  }
+  if (foregroundTarget === 0 || foregroundTarget === indices.length) return 0;
+
+  // Select a threshold that keeps approximately the same local area. This
+  // rounds the boundary without turning the brush into an erosion tool.
+  let low = 0, high = 1;
+  for (let step = 0; step < 16; step++) {
+    const threshold = (low + high) / 2;
+    let count = 0;
+    for (const value of values) if (value >= threshold) count++;
+    if (count > foregroundTarget) low = threshold;
+    else high = threshold;
+  }
+  const threshold = (low + high) / 2;
+  let changed = 0;
+  for (let i = 0; i < indices.length; i++) {
+    const next = values[i] >= threshold ? 1 : 0;
+    if (slice[indices[i]] !== next) {
+      slice[indices[i]] = next;
+      changed++;
+    }
+  }
+  strokeChanged = strokeChanged || changed > 0;
+  return changed;
+}
+
+function paintMaskAt(cx, cy, value) {
+  const slice = currentMaskSlice(value === 1);
+  if (!slice || !volShape) return 0;
+  const [H, W] = volShape;
+  const radius = parseInt(brushSize.value);
+  const radiusSquared = radius * radius;
+  let changed = 0;
+  for (let y = Math.max(0, Math.floor(cy - radius)); y <= Math.min(H - 1, Math.ceil(cy + radius)); y++) {
+    for (let x = Math.max(0, Math.floor(cx - radius)); x <= Math.min(W - 1, Math.ceil(cx + radius)); x++) {
+      if ((x - cx) ** 2 + (y - cy) ** 2 > radiusSquared) continue;
+      const index = y * W + x;
+      if (slice[index] !== value) {
+        slice[index] = value;
+        changed++;
+      }
+    }
+  }
+  strokeChanged = strokeChanged || changed > 0;
+  return changed;
+}
+
+function applyActiveToolAt(x, y) {
+  if (activeTool === 'smooth') return smoothMaskAt(x, y);
+  if (activeTool === 'paint') return paintMaskAt(x, y, 1);
+  if (activeTool === 'erase') return paintMaskAt(x, y, 0);
+  return 0;
+}
+
+function sliceHasForeground(slice) {
+  if (!slice) return false;
+  for (const value of slice) if (value) return true;
+  return false;
+}
+
+function refreshEditedState(z) {
+  const key = String(z);
+  const current = maskData?.slices[key] || null;
+  const original = originalMaskSlices.get(key) || null;
+  const changed = original ? !slicesEqual(current, original) : sliceHasForeground(current);
+  if (changed) editedSlices.add(z);
+  else editedSlices.delete(z);
+}
+
+function beginBrushStroke(point) {
+  const existed = Boolean(maskData?.slices[String(currentZ)]);
+  const slice = currentMaskSlice(activeTool === 'paint');
+  if (!slice) {
+    setStatus('no mask on this slice', 'error');
+    return false;
+  }
+  undoStack.push({ z: currentZ, before: slice.slice(), existed });
+  if (undoStack.length > 20) undoStack.shift();
+  isBrushing = true;
+  strokeChanged = false;
+  lastBrushPoint = point;
+  applyActiveToolAt(point.x, point.y);
+  renderOverlay();
+  syncSmoothingControls();
+  return true;
+}
+
+function continueBrushStroke(point) {
+  if (!isBrushing || !lastBrushPoint) return;
+  const dx = point.x - lastBrushPoint.x;
+  const dy = point.y - lastBrushPoint.y;
+  const distance = Math.hypot(dx, dy);
+  const spacing = Math.max(2, parseInt(brushSize.value) * 0.22);
+  const steps = Math.max(1, Math.ceil(distance / spacing));
+  for (let step = 1; step <= steps; step++) {
+    applyActiveToolAt(
+      lastBrushPoint.x + dx * step / steps,
+      lastBrushPoint.y + dy * step / steps,
+    );
+  }
+  lastBrushPoint = point;
+  renderOverlay();
+}
+
+function endBrushStroke() {
+  if (!isBrushing) return;
+  isBrushing = false;
+  lastBrushPoint = null;
+  if (!strokeChanged) {
+    const entry = undoStack.pop();
+    if (entry && !entry.existed && !sliceHasForeground(currentMaskSlice())) {
+      delete maskData.slices[String(entry.z)];
+    }
+  }
+  else {
+    refreshEditedState(currentZ);
+    setStatus(`${activeTool} stroke applied`, 'done');
+  }
+  syncSmoothingControls();
+  updateInfo();
+}
+
+function slicesEqual(first, second) {
+  if (!first || !second || first.length !== second.length) return false;
+  for (let i = 0; i < first.length; i++) if (first[i] !== second[i]) return false;
+  return true;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UI WIRING
+═══════════════════════════════════════════════════════════════════════════ */
+function setStatus(msg, cls = '') {
+  statusEl.textContent = msg;
+  statusEl.className   = cls;
+}
+
+function updateInfo() {
+  if (!volShape) { infoBox.innerHTML = '—'; return; }
+  const [H, W, Z] = volShape;
+  const activeSlices = maskData
+    ? Object.values(maskData.slices).filter(sliceHasForeground).length
+    : 0;
+  const hasMask = maskData ? `<br>Mask: ${activeSlices} active slices` : '';
+  const edits = maskData ? `<br>Edited: ${editedSlices.size} slices` : '';
+  const output = maskData
+    ? `<br>Output: ${selectedOutput === 'fused' ? 'Fused' : selectedOutput === 'agent1' ? 'Agent 1' : 'Agent 2'}`
+    : '';
+  const fallback = fusionDiagnostics?.fallback
+    ? `<br>Fusion fallback: ${fusionDiagnostics.fallback}`
+    : '';
+  infoBox.innerHTML = `Dims: ${H} × ${W} × ${Z}${output}${hasMask}${edits}${fallback}`;
+}
+
+// Load CT file
+document.getElementById('file-ct').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  uploadedFile = file;
+  setStatus('loading…', 'running');
+  try {
+    const { vol, H, W, Z } = await loadNifti(file);
+    ctVolume = vol;
+    volShape = [H, W, Z];
+    maskData = null;
+    comparisonStates = {};
+    fusionDiagnostics = null;
+    selectedOutput = 'fused';
+    originalMaskSlices = new Map();
+    editedSlices.clear();
+    undoStack = [];
+    brushPoint = null;
+    activeTool = 'none';
+    document.body.classList.remove('brush-active');
+
+    sliceSlider.max   = Z - 1;
+    sliceSlider.value = Math.floor(Z / 2);
+    currentZ          = Math.floor(Z / 2);
+    sliceNum.textContent = `${currentZ + 1} / ${Z}`;
+
+    hint.style.display       = 'none';
+    wrap.style.display       = 'block';
+    sliceBar.style.display   = 'flex';
+
+    renderCT();
+    setStatus('CT loaded', 'done');
+    btnSegment.disabled = false;
+    syncOutputButtons();
+    syncSmoothingControls();
+    updateInfo();
+  } catch (err) {
+    setStatus('load error', 'error');
+    console.error(err);
+  }
+});
+
+// Slice slider
+sliceSlider.addEventListener('input', () => {
+  endBrushStroke();
+  currentZ = parseInt(sliceSlider.value);
+  sliceNum.textContent = `${currentZ + 1} / ${volShape[2]}`;
+  renderCT();
+  syncSmoothingControls();
+});
+
+// Display controls
+[wcSlider, wwSlider].forEach(s => s.addEventListener('input', () => {
+  document.getElementById('wc-val').textContent   = wcSlider.value;
+  document.getElementById('ww-val').textContent   = wwSlider.value;
+  renderCT();
+}));
+
+opSlider.addEventListener('input', () => {
+  document.getElementById('op-val').textContent = opSlider.value + '%';
+  renderOverlay();
+});
+toggleOL.addEventListener('change', renderOverlay);
+outputFused.addEventListener('click', () => selectOutput('fused'));
+outputAgent1.addEventListener('click', () => selectOutput('agent1'));
+outputAgent2.addEventListener('click', () => selectOutput('agent2'));
+
+function setActiveTool(tool) {
+  endBrushStroke();
+  activeTool = activeTool === tool ? 'none' : tool;
+  document.body.classList.toggle('brush-active', activeTool !== 'none');
+  setStatus(activeTool === 'none' ? 'mask editing disabled' : `${activeTool} tool selected`);
+  syncSmoothingControls();
+  renderOverlay();
+}
+
+toolSmooth.addEventListener('click', () => setActiveTool('smooth'));
+toolPaint.addEventListener('click', () => setActiveTool('paint'));
+toolErase.addEventListener('click', () => setActiveTool('erase'));
+
+brushSize.addEventListener('input', () => {
+  document.getElementById('brush-size-val').textContent = `${brushSize.value} px`;
+  renderOverlay();
+});
+brushStrength.addEventListener('input', () => {
+  document.getElementById('brush-strength-val').textContent = `${brushStrength.value}%`;
+});
+
+btnUndo.addEventListener('click', () => {
+  endBrushStroke();
+  const entry = undoStack.pop();
+  if (!entry || !maskData) return;
+  if (entry.existed === false) delete maskData.slices[String(entry.z)];
+  else maskData.slices[String(entry.z)] = entry.before;
+  currentZ = entry.z;
+  sliceSlider.value = entry.z;
+  sliceNum.textContent = `${entry.z + 1} / ${volShape[2]}`;
+  refreshEditedState(entry.z);
+  setStatus('last stroke undone', 'done');
+  renderCT();
+  syncSmoothingControls();
+  updateInfo();
+});
+
+btnResetSlice.addEventListener('click', () => {
+  endBrushStroke();
+  const key = String(currentZ);
+  const original = originalMaskSlices.get(key);
+  const current = currentMaskSlice();
+  if (!current) return;
+  undoStack.push({ z: currentZ, before: current.slice(), existed: true });
+  if (undoStack.length > 20) undoStack.shift();
+  if (original) maskData.slices[key] = original.slice();
+  else delete maskData.slices[key];
+  editedSlices.delete(currentZ);
+  setStatus('current slice reset', 'done');
+  renderOverlay();
+  syncSmoothingControls();
+  updateInfo();
+});
+
+// Keyboard: arrow keys for slice navigation
+window.addEventListener('keydown', (e) => {
+  if (!volShape) return;
+  if (isBrushing) endBrushStroke();
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    currentZ = Math.min(volShape[2] - 1, currentZ + 1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    currentZ = Math.max(0, currentZ - 1);
+  } else return;
+  sliceSlider.value    = currentZ;
+  sliceNum.textContent = `${currentZ + 1} / ${volShape[2]}`;
+  renderCT();
+  syncSmoothingControls();
+});
+
+// Mouse coordinates and mask-editing brushes
+canvasOL.addEventListener('mousemove', (e) => {
+  if (!volShape) return;
+  const point = eventToVoxel(e);
+  if (!point) return;
+  brushPoint = point;
+  const x = Math.floor(point.x);
+  const y = Math.floor(point.y);
+  const [H, W] = volShape;
+  if (x < 0 || x >= W || y < 0 || y >= H) return;
+  const hu = ctVolume[currentZ * H * W + y * W + x];
+  coordsEl.textContent = `x:${x}  y:${y}  z:${currentZ}  HU:${Math.round(hu)}`;
+  if (isBrushing) continueBrushStroke(point);
+  else if (activeTool !== 'none') renderOverlay();
+});
+
+canvasOL.addEventListener('mousedown', (e) => {
+  if (e.button !== 0 || activeTool === 'none' || !maskData) return;
+  const point = eventToVoxel(e);
+  if (!point) return;
+  e.preventDefault();
+  brushPoint = point;
+  beginBrushStroke(point);
+});
+
+canvasOL.addEventListener('mouseleave', () => {
+  brushPoint = null;
+  endBrushStroke();
+  renderOverlay();
+});
+
+window.addEventListener('mouseup', endBrushStroke);
+canvasOL.addEventListener('contextmenu', e => e.preventDefault());
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SEGMENTATION  (calls FastAPI server)
+═══════════════════════════════════════════════════════════════════════════ */
+btnSegment.addEventListener('click', async () => {
+  if (!uploadedFile) return;
+  setStatus('running inference…', 'running');
+  btnSegment.disabled = true;
+
+  try {
+    const form = new FormData();
+    form.append('file', uploadedFile);
+
+    const resp = await fetch(`${API}/segment/compare`, {
+      method: 'POST',
+      body: form,
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ detail: resp.statusText }));
+      throw new Error(err.detail || resp.statusText);
+    }
+
+    const response = await resp.json();
+    comparisonStates = normalizeComparisonResponse(response);
+    fusionDiagnostics = response.fusion_diagnostics || null;
+    selectOutput(response.default_output || 'fused', false);
+    setStatus('segmentation done', 'done');
+    updateInfo();
+  } catch (err) {
+    setStatus('inference error', 'error');
+    console.error(err);
+    alert('Segmentation failed:\n' + err.message);
+  } finally {
+    btnSegment.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

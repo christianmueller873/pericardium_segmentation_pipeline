@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite this repository and the upstream SAROS dataset."
+title: "Dual-Agent Pericardial-Sac Segmentation"
+type: software
+authors:
+  - family-names: "Mueller"
+    given-names: "Christian"
+version: 0.1.0
+license: MIT
+repository-code: "https://github.com/christianmueller873/pericardium_segmentation_pipeline"
+url: "https://christianmueller873.github.io/pericardium_segmentation_pipeline/"
+keywords:
+  - medical image segmentation
+  - computed tomography
+  - pericardium
+  - nnU-Net
+  - MONAI

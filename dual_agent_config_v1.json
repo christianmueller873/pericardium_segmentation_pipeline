@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "default_output": "fused",
+  "agent1": {
+    "role": "coarse pericardial-sac guide and range-end safety net",
+    "model_folder": "nnUNet_training/nnUNet_results/Dataset557_BCA_2d_regions/nnUNetTrainer__nnUNetPlans__2d",
+    "folds": [0],
+    "checkpoint_name": "checkpoint_best.pth",
+    "checkpoint_sha256": "c893c5d8f54cb8113e43db361c9382cf3dceb693402049f67902d43d912ea95a",
+    "pericardium_label": 7,
+    "use_other_anatomical_labels": false
+  },
+  "agent2": {
+    "role": "primary precise pericardial edge predictor",
+    "checkpoint": "agent2_finetune_runs/v2_gold_boundary/final/final_model.pt",
+    "checkpoint_sha256": "8a0842046f37fb40f58f336651f792e505ef2b282588260d85e9fa8a9d63771b",
+    "threshold": 0.5,
+    "spacing_mm": [1.5, 1.5, 1.5],
+    "hu_window": [-160, 240],
+    "patch_size": [224, 224, 192]
+  },
+  "fusion": {
+    "agent2_threshold": 0.5,
+    "partial_recovery_probability": 0.2,
+    "complete_recovery_probability": 0.12,
+    "end_band_mm": 15.0,
+    "max_axial_extension_mm": 9.0,
+    "spatial_bridge_mm": 8.0,
+    "hard_fallback_bridge_mm": 5.0,
+    "max_restored_area_fraction_of_anchor": 1.05,
+    "min_agent1_component_mm2": 20.0,
+    "min_agent2_component_mm2": 10.0,
+    "min_agent1_agent2_dice": 0.1,
+    "min_agent1_overlap_fraction": 0.3,
+    "min_agent1_volume_ratio_to_agent2": 0.15,
+    "max_agent1_volume_ratio_to_agent2": 6.0,
+    "min_shared_nonempty_slices": 3,
+    "min_agent2_largest_component_fraction": 0.9,
+    "min_agent1_largest_component_fraction_for_fallback": 0.85,
+    "fallback_to_agent1_on_fragmented_agent2": true,
+    "enforce_single_connected_output": true,
+    "allow_hard_agent1_end_fallback": true,
+    "allow_unverified_total_agent1_fallback": false,
+    "allow_internal_gap_recovery": false,
+    "restrict_agent2_to_agent1_envelope": false,
+    "agent1_envelope_mm": 10.0
+  },
+  "frontend_contract": {
+    "available_outputs": ["fused", "agent1", "agent2"],
+    "automatic_default": "fused",
+    "allow_user_selection": true
+  }
+}
