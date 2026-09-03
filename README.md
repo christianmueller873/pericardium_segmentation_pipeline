@@ -4,8 +4,8 @@ A research prototype for automatic segmentation of the pericardial sac in
 computed tomography (CT) volumes. It combines a coarse 2D nnU-Net (an
 automatically configured medical image segmentation framework) anatomical
 guide with a precise 3D residual U-Net (a neural network that preserves fine
-image detail). A conservative fusion layer (rules for combining compatible
-model outputs) rejects mismatched results rather than silently merging them.
+image detail). A conservative fusion layer rejects mismatched results rather
+than silently merging them.
 
 ## See it working
 
@@ -22,17 +22,14 @@ clinically validated, and must not be used for diagnosis or patient care.
 
 ## What this repository demonstrates
 
-- Complete NIfTI inference (processing a three dimensional medical image stored
-  in a standard NIfTI file) through FastAPI (the Python service that runs the
-  models and sends results to the viewer).
+- Complete NIfTI inference through a FastAPI service.
 - Comparison of both models plus an automatic fused result.
-- Safety gates (rules that reject unreliable results) for disconnected masks,
-  masks outside the expected domain, or mutually incompatible masks.
+- Safety gates for disconnected masks, masks outside the expected domain, or
+  mutually incompatible masks.
 - A browser CT viewer with slice navigation, windowing, overlay control, and
   local paint/erase/smooth/undo tools.
 - Checkpoint SHA-256 verification (a cryptographic check that confirms saved
-  model weight files are unchanged) and data leakage guards (checks that keep
-  evaluation cases separate from training).
+  model weight files are unchanged) and data leakage guards.
 - Refinement at patient level and a single evaluation on a held out patient.
 - A reviewed recording of real inference made from an approved public SAROS CT.
 
