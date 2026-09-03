@@ -152,7 +152,7 @@ larger external set, and no expert reader or regulatory validation has been
 performed. Empty or incoherent results may be intentionally withheld.
 See [`docs/limitations.md`](docs/limitations.md).
 
-## Upstream work and license
+## Citations and license
 
 This project began from the University Medicine Essen SAROS dataset repository
 and retains its MIT license and copyright notice. SAROS dataset access and
