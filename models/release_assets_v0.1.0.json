@@ -2,15 +2,9 @@
   "release_tag": "v0.1.0",
   "assets": [
     {
-      "name": "agent1_pericardium_guide_v1.zip",
-      "size_bytes": 344766246,
-      "sha256": "873c1fb7564b537003508d6fe90d4a368c6f302a06327720ae25a8a50624dc4b",
-      "checkpoint_sha256": "c893c5d8f54cb8113e43db361c9382cf3dceb693402049f67902d43d912ea95a"
-    },
-    {
       "name": "agent2_gold_refined_v2.zip",
-      "size_bytes": 142373559,
-      "sha256": "94f3e0803c3512d7bf124e812b120c8c04b60e6711d1d4a9ea5e7deeb25b70d1",
+      "size_bytes": 142222911,
+      "sha256": "c5feb18e2a1638531d1a74946febf3acbeb779b32a5d58db642694b871cd5c38",
       "checkpoint_sha256": "8a0842046f37fb40f58f336651f792e505ef2b282588260d85e9fa8a9d63771b"
     }
   ]

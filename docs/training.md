@@ -9,6 +9,11 @@ uses only pericardium label 7. Local provenance identifies SAROS Version 1 as
 the training source. SAROS annotations are CC BY 4.0; the underlying TCIA CT
 collections retain separate terms.
 
+The 750-case training split included 144 cases from six collections identified
+by TCIA as controlled access. The Agent 1 checkpoint is retained locally and
+is not distributed in `v0.1.0` pending written confirmation that public
+checkpoint distribution is within the approved use.
+
 ## Agent 2 pretraining
 
 Agent 2 learned broad anatomy from 947 CT volumes selected from the
@@ -24,6 +29,8 @@ recorded only as a current reproduction baseline.
 
 ## Gold-standard refinement
 
+The 20 cases came from the Visual Lab Cardiac Fat Database (CT-FAT). Its source
+page permits use of the ground truth with citation of Rodrigues et al. (2016).
 Manual 2D contours were converted into geometry-aware 3D targets through a
 versioned pipeline that included DICOM/BMP registration, orientation checks,
 canonical-grid construction, connectivity repair, and visual QA.

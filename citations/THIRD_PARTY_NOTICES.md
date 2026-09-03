@@ -25,6 +25,16 @@ identify the training source as SAROS Version 1.
   3.0, CC BY-NC 3.0, CC BY 4.0, and controlled access terms.
 - TCIA policy: <https://www.cancerimagingarchive.net/data-usage-policies-and-restrictions/>.
 
+The recorded Agent 1 training split used 750 SAROS cases. Of these, 144 came
+from six collections now identified by TCIA as controlled access:
+ACRIN-HNSCC-FDG-PET/CT, Anti-PD-1_MELANOMA, HNSCC, Head-Neck Cetuximab,
+QIN-HEADNECK, and TCGA-HNSC. TCIA's Restricted License permits publication of
+project results but limits use and redistribution of the dataset and certain
+derivatives. The project records do not contain written confirmation that a
+public checkpoint falls within the approved publication scope. The Agent 1
+checkpoint is therefore withheld from this release pending confirmation from
+the applicable agreement holder or TCIA/UAMS.
+
 Required SAROS data citation:
 
 Koitka, S., Baldini, G., Kroll, L., van Landeghem, N., Haubold, J., Sung Kim,
@@ -88,6 +98,24 @@ Isensee, F., Jaeger, P. F., Kohl, S. A. A., Petersen, J., & Maier-Hein, K. H.
 image segmentation.* Nature Methods, 18, 203–211.
 <https://doi.org/10.1038/s41592-020-01008-z>
 
+## Visual Lab Cardiac Fat Database
+
+Agent 2 refinement and held out evaluation used all 20 noncontrast cardiac CT
+cases from the Visual Lab Cardiac Fat Database (CT-FAT), Universidade Federal
+Fluminense. Nineteen cases were used for refinement and the twentieth was kept
+outside training and checkpoint selection for the reported held out test. The
+source page permits use of its ground truth when the published work is cited.
+The source DICOM files and manual ground truth are not redistributed here.
+
+- Dataset page: <https://visual.ic.uff.br/en/cardio/ctfat/>.
+- Required citation:
+
+Rodrigues, E. O., Morais, F. F. C., Morais, N. A. O. S., Conci, L. S., Neto,
+L. V., & Conci, A. (2016). *A novel approach for the automated segmentation
+and volume quantification of cardiac fats on computed tomography.* Computer
+Methods and Programs in Biomedicine, 123, 109-128.
+<https://doi.org/10.1016/j.cmpb.2015.09.017>
+
 ## Demo CT: NSCLC Radiomics
 
 The inference recording uses public NSCLC Radiomics Version 4 CT case
@@ -127,14 +155,15 @@ Nature Communications, 5. <https://doi.org/10.1038/ncomms5006>
 
 ## Model weight distribution
 
-The GitHub Release checkpoints are separate artifacts from the MIT licensed
-software. Agent 1 learned from SAROS and TCIA material. Agent 2 learned from
-TotalSegmentator CTs and derived pseudolabels, then from 19 locally controlled
-gold standard cases that are not redistributed.
+The GitHub Release checkpoint is a separate artifact from the MIT licensed
+software. Agent 2 learned from TotalSegmentator CTs and derived pseudolabels,
+then from 19 CT-FAT cases with manual ground truth. Training data and labels
+are not redistributed.
 
-The project owner authorized distribution of the two frozen checkpoint files
-on September 3, 2026. They are licensed under CC BY-NC 4.0 as described in
+The project owner authorized distribution of the frozen Agent 2 checkpoint on
+September 3, 2026. It is licensed under CC BY-NC 4.0 as described in
 [`MODEL_WEIGHTS_LICENSE.md`](MODEL_WEIGHTS_LICENSE.md). This licensing decision
 does not alter or replace any source dataset, image collection, annotation, or
-third party software terms. Each release archive includes this notice, the
-model weight license, and the corresponding model card.
+third party software terms. The release archive includes this notice, the
+model weight license, and the Agent 2 model card. The Agent 1 checkpoint is
+withheld for the controlled access reason documented above.

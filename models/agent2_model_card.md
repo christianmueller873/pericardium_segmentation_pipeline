@@ -20,7 +20,8 @@ residual U-Net with 12,861,646 parameters.
 - Pretraining manifests: 805 training and 142 validation cases.
 - Pseudolabel source: TotalSegmentator `trunk_cavities` task, `pericardium`
   output, with 10% trimmed from each end of positive axial support.
-- Refined on 19 accepted gold-standard patients.
+- Refined on 19 accepted cases from the Visual Lab Cardiac Fat Database
+  (CT-FAT), with its twentieth case held out.
 - Patient-level 16/3 calibration split.
 - Final all-19 fit length: 34 epochs.
 - AdamW, learning rate 1e-5, weight decay 1e-5.
@@ -45,3 +46,5 @@ validation. Range ends remain difficult. The exact TotalSegmentator package
 version used for historical pseudolabel generation was not recorded. The
 checkpoint is distributed under the separate
 [model weight license](../citations/MODEL_WEIGHTS_LICENSE.md).
+Dataset terms and the required CT-FAT citation are recorded in the
+[third party notices](../citations/THIRD_PARTY_NOTICES.md).

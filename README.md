@@ -80,7 +80,8 @@ Requirements:
 - Windows PowerShell and Python 3.11.
 - A system with CUDA support (NVIDIA GPU acceleration) containing PyTorch,
   MONAI, nnU-Net v2, NiBabel, SciPy, FastAPI, Uvicorn, and multipart support.
-- Authorized Agent 1 and Agent 2 checkpoints (saved model weight files).
+- An authorized local Agent 1 checkpoint and the released Agent 2 checkpoint
+  (saved model weight files).
 
 The exact verified development versions are recorded in
 [`docs/environment_versions.json`](docs/environment_versions.json).
@@ -139,9 +140,11 @@ images or checkpoints.
 ## Models and data
 
 Model weights and medical images are intentionally excluded from ordinary Git
-history. The two frozen checkpoints are prepared as `v0.1.0` GitHub Release
-assets with verified SHA-256 hashes and separate CC BY-NC 4.0 terms. No
-training images or labels derived from patients are distributed. See
+history. The frozen Agent 2 checkpoint is prepared as a `v0.1.0` GitHub
+Release asset with a verified SHA-256 hash and separate CC BY-NC 4.0 terms.
+Agent 1 is withheld pending confirmation concerning controlled access SAROS
+source images. No training images or labels derived from patients are
+distributed. See
 [`models/README.md`](models/README.md) and
 [`docs/privacy_and_data.md`](docs/privacy_and_data.md).
 

@@ -10,15 +10,17 @@ manifest, or review gallery is approved for public Git history by default.
 - Replace internal patient aliases with identifiers such as `heldout-001`.
 - Do not expose filenames, DICOM headers, accession numbers, dates, local paths,
   screenshots, terminal history, or browser notifications.
-- Keep model checkpoints out of ordinary Git history. Publish only the two
-  frozen, hash-verified packages documented in `models/README.md` as GitHub
-  Release assets under the terms in `citations/MODEL_WEIGHTS_LICENSE.md`.
+- Keep model checkpoints out of ordinary Git history. Publish only the frozen,
+  hash-verified Agent 2 package documented in `models/README.md` as a GitHub
+  Release asset under the terms in `citations/MODEL_WEIGHTS_LICENSE.md`.
+- Keep the Agent 1 checkpoint private unless the applicable controlled access
+  agreement holder or TCIA/UAMS confirms public checkpoint distribution.
 - Never use `git add -f` on ignored medical/model paths.
 
 SAROS annotations, NSCLC Radiomics images, underlying TCIA images, the
-TotalSegmentator dataset, and TotalSegmentator software retain their own
-licenses and citation requirements. The project MIT license does not replace
-them. See
+TotalSegmentator dataset, Visual Lab CT-FAT data, and TotalSegmentator software
+retain their own licenses and citation requirements. The project MIT license
+does not replace them. See
 the [third party notices](../citations/THIRD_PARTY_NOTICES.md).
 
 ## Local protections

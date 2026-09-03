@@ -25,5 +25,7 @@ connectedness gates pass. It can be displayed independently for review.
 The label-7 output was strongly out of domain on `heldout-001` and failed the
 agreement gate. It must not be described as a validated whole-sac model for all
 scan domains. SAROS and TCIA terms are separate from the project software
-license. The checkpoint is distributed under the separate
-[model weight license](../citations/MODEL_WEIGHTS_LICENSE.md).
+license. The checkpoint is not distributed in the `v0.1.0` release because
+144 training cases came from controlled access TCIA collections and the
+project records do not establish permission to distribute the resulting
+checkpoint publicly.

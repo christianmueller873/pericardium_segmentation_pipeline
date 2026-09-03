@@ -193,6 +193,27 @@ references:
     year: 2023
     doi: "10.5281/zenodo.10047292"
   - type: article
+    title: "A novel approach for the automated segmentation and volume quantification of cardiac fats on computed tomography"
+    authors:
+      - family-names: "Rodrigues"
+        given-names: "Éber O."
+      - family-names: "Morais"
+        given-names: "Felipe F. C."
+      - family-names: "Morais"
+        given-names: "Natália A. O. S."
+      - family-names: "Conci"
+        given-names: "Lucas S."
+      - family-names: "Neto"
+        given-names: "Luiz V."
+      - family-names: "Conci"
+        given-names: "Aura"
+    journal: "Computer Methods and Programs in Biomedicine"
+    volume: "123"
+    start: 109
+    end: 128
+    year: 2016
+    doi: "10.1016/j.cmpb.2015.09.017"
+  - type: article
     title: "TotalSegmentator: Robust Segmentation of 104 Anatomic Structures in CT Images"
     authors:
       - family-names: "Wasserthal"
