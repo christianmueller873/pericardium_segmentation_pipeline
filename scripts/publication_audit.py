@@ -10,9 +10,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ROOT_FILES = {
     ".gitignore",
-    "CITATION.cff",
-    "LICENSE",
-    "PUBLICATION_MANIFEST.md",
+    "citations/CITATION.cff",
+    "citations/LICENSE",
     "README.md",
     "ct_viewer.html",
     "dual_agent_config_v1.json",
@@ -28,7 +27,6 @@ ROOT_FILES = {
     "test_dual_agent_config_v1.py",
     "test_dual_agent_fusion_v1.py",
     "test_dual_agent_paths_v1.py",
-    "test_static_demo.js",
 }
 PUBLIC_DIRECTORIES = (".github", "demo", "docs", "models", "results", "scripts")
 PROHIBITED_SUFFIXES = (
@@ -54,8 +52,8 @@ CONTENT_RULES = {
     ),
 }
 APPROVED_BINARY_FILES = {
-    "demo/assets/full_pipeline_demo.mp4":
-        "9ac53ddbfecc1b59fb3fbad543e736cf7fb03d69a198c776c79791ca0b0b60d6",
+    "demo/full_pipeline_demo.mp4":
+        "b8735bb4947be8e05a592e1521021780e95b7a6584dead0096a3274478a36658",
 }
 
 

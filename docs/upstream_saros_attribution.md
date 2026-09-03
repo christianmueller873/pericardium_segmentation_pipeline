@@ -8,7 +8,7 @@ Medicine Essen:
 - Upstream license: MIT
 - Upstream copyright: Copyright (c) 2024 University Medicine Essen
 
-The upstream copyright and MIT permission notice remain in the root `LICENSE`.
+The upstream copyright and MIT permission notice remain in `citations/LICENSE`.
 Project-specific additions, model weights, and medical data may have separate
 rights and must be reviewed before redistribution.
 

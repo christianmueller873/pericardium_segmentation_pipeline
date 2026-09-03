@@ -69,7 +69,7 @@ $sanitizedDataset = Join-Path $outputRoot ".agent1_dataset_release.json"
 try {
     $dataset = Get-Content -LiteralPath (Join-Path $agent1Root "dataset.json") -Raw |
         ConvertFrom-Json
-    $dataset.licence = "See repository LICENSE and models/agent1_model_card.md"
+    $dataset.licence = "See citations/LICENSE and models/agent1_model_card.md"
     $dataset.converted_by = "Christian Mueller"
     $dataset | ConvertTo-Json -Depth 100 |
         Set-Content -LiteralPath $sanitizedDataset -Encoding UTF8

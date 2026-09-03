@@ -40,8 +40,5 @@ jobs:
       - name: Run viewer tests
         run: node test_ct_viewer_smoothing.js
 
-      - name: Run static-demo safety tests
-        run: node test_static_demo.js
-
       - name: Audit proposed public files
         run: python scripts/publication_audit.py

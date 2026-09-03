@@ -18,15 +18,15 @@ window that could expose personal information.
 9. Trim the result to approximately 30–60 seconds.
 10. Review every frame for usernames, paths, notifications, and identifiers.
 
-Target public filename: `demo/assets/full_pipeline_demo.mp4`. Keep the final
+Target public filename: `demo/full_pipeline_demo.mp4`. Keep the final
 video below 100 MiB; approximately 10–30 MiB is preferable for repository use.
 The README should label it as a real local inference recording on public data.
 
 ## Published edit
 
 The reviewed public edit is 74.6 seconds, 1600×772 H.264 at 24 fps, has no
-audio, and is 1,232,200 bytes. Its SHA-256 is
-`9ac53ddbfecc1b59fb3fbad543e736cf7fb03d69a198c776c79791ca0b0b60d6`.
-The approximately 100-second idle inference wait was replaced by a two-second
-disclosure card, and the post-inference portion is shown at 2× speed. The
+audio, and is 1,229,530 bytes. Its SHA-256 is
+`b8735bb4947be8e05a592e1521021780e95b7a6584dead0096a3274478a36658`.
+The 1-minute-59-second inference wait was replaced by a two-second disclosure
+card, and the post-inference portion is shown at 2× speed. The
 original 250-second capture remains in the ignored local release-assets area.
